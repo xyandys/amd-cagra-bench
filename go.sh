@@ -13,7 +13,8 @@ exec > >(tee "$W/run.log") 2>&1
 say() { printf '\n=== %s ===\n' "$*"; }
 
 say "0 env"
-uname -m; nproc
+uname -m
+nproc
 HIPCC=${HIPCC:-/opt/rocm/bin/hipcc}
 HIPVS=${HIPVS_ROOT:-/opt/hipvs}
 ls -l "$HIPCC" || echo "NO_HIPCC"
@@ -24,18 +25,24 @@ mkdir -p base opt
 cp -f "$D"/bridge_base.c "$D"/bridge_opt.c "$D"/seekdb_cuvs_bridge.h "$D"/bench.cpp . || { echo "MISSING_SOURCES"; exit 1; }
 ls -l bridge_base.c bridge_opt.c seekdb_cuvs_bridge.h bench.cpp
 
-build_so() { # <src.c> <dir>
-  ( cd "$2" && "$HIPCC" -shared -fPIC -O2 -D__HIP_PLATFORM_AMD__ \
+build_so() {
+  local src="$1"
+  local dir="$2"
+  ( cd "$dir" && "$HIPCC" -shared -fPIC -O2 -D__HIP_PLATFORM_AMD__ \
       -I "$W" -I "$HIPVS/include" -I /opt/rocm/include \
-      "$W/$1" -L "$HIPVS/lib" -Wl,-soname,libseekdb_cuvs_bridge.so \
+      "$W/$src" -L "$HIPVS/lib" -Wl,-soname,libseekdb_cuvs_bridge.so \
       -Wl,-rpath,"$HIPVS/lib:/opt/rocm/lib" -lcuvs_c -o libseekdb_cuvs_bridge.so )
 }
 
-build_bench() { # <dir>
-  ( cd "$2" && "$HIPCC" -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I "$W" "$W/bench.cpp" \
-      ./libseekdb_cuvs_bridge.so -Wl,-rpath,"$2" -o bench ) || \
-  ( cd "$2" && "$HIPCC" -O2 -D__HIP_PLATFORM_AMD__ -I "$W" "$W/bench.cpp" \
-      ./libseekdb_cuvs_bridge.so -Wl,-rpath,"$2" -o bench )
+build_bench() {
+  local dir="$1"
+  ( cd "$dir" && "$HIPCC" -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I "$W" "$W/bench.cpp" \
+      ./libseekdb_cuvs_bridge.so -Wl,-rpath,"$dir" -o bench )
+  if [ ! -x "$dir/bench" ]; then
+    ( cd "$dir" && "$HIPCC" -O2 -D__HIP_PLATFORM_AMD__ -I "$W" "$W/bench.cpp" \
+        ./libseekdb_cuvs_bridge.so -Wl,-rpath,"$dir" -o bench )
+  fi
+  [ -x "$dir/bench" ]
 }
 
 say "1 build baseline"
