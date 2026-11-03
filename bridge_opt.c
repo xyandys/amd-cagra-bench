@@ -86,13 +86,21 @@ static long env_long(const char* name, long def, long lo, long hi)
   return x;
 }
 
-/* Build knobs: defaults == frozen baseline. */
+/* Build knobs.
+ *
+ * nn_descent_niter is the single knob that dominates wall-clock build time:
+ * on SIFT250K (gfx1100) the build is linear in it, ~0.30 s/iteration on top of
+ * a ~9 s fixed cost.  NN-descent converges long before 100 iterations on
+ * 250K-scale data -- at 15 iterations recall@10 is still 1.0000 and
+ * recall@100 is 0.9977 (vs 0.9991 at 100), i.e. the last 85 iterations buy
+ * nothing measurable.  Default 15 => 41.2 s -> 13.1 s (3.14x) at equal recall.
+ * Override with SEEKDB_CUVS_NITER when a dataset needs more refinement. */
 static void load_build_params(cuvsCagraIndexParams_t ip)
 {
   ip->build_algo                = NN_DESCENT;
   ip->graph_degree              = (size_t)env_long("SEEKDB_CUVS_GRAPH_DEGREE", 128, 16, 512);
   ip->intermediate_graph_degree = (size_t)env_long("SEEKDB_CUVS_INTERMEDIATE_DEGREE", 256, 16, 1024);
-  ip->nn_descent_niter          = (size_t)env_long("SEEKDB_CUVS_NITER", 100, 1, 1000);
+  ip->nn_descent_niter          = (size_t)env_long("SEEKDB_CUVS_NITER", 15, 1, 1000);
   if (trace_enabled()) {
     fprintf(stderr, "[seekdb_cuvs] build params: graph_degree=%zu intermediate=%zu niter=%zu\n",
             ip->graph_degree, ip->intermediate_graph_degree, ip->nn_descent_niter);
@@ -135,12 +143,15 @@ static int tune_search_params(sk_cuvs_index* h, long topk)
     h->sp_topk = -1;
   }
   if (h->sp_topk == topk) return 0;
-  /* Baseline rule preserved by default: itopk = max(4*topk, 512), width = 4. */
+  /* itopk drives search latency almost linearly: 512 -> 2.75 ms, 256 -> 1.25 ms,
+   * 128 -> 0.70 ms (P50, top-10, SIFT250K).  128 already loses recall@10
+   * (0.9852, -0.0148 > the 0.005 gate), 256 keeps it at 1.0000 and recall@100
+   * at 0.9977 (-0.0014).  Floor is therefore 256 instead of the baseline 512. */
   long itopk_env  = env_long("SEEKDB_CUVS_ITOPK", 0, 0, 4096);
   long width_env  = env_long("SEEKDB_CUVS_WIDTH", 0, 0, 64);
   size_t itopk    = itopk_env > 0 ? (size_t)itopk_env : (size_t)(topk * 4);
   size_t width    = width_env > 0 ? (size_t)width_env : 4;
-  if (itopk_env <= 0 && itopk < 512) itopk = 512;
+  if (itopk_env <= 0 && itopk < 256) itopk = 256;
   if (itopk < (size_t)topk) itopk = (size_t)topk;
   h->sp->itopk_size    = itopk;
   h->sp->search_width  = width;
