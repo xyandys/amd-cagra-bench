@@ -1,1 +1,1 @@
-pwd; ls -la /workspace | head -20; ls -la /opt/hipvs/lib/libcuvs_c.so /opt/rocm/bin/hipcc; rocm-smi --showid 2>&1 | head -5 #t1
+cd /workspace && for F in fromargs_test.c go_fromargs.sh; do curl -sL -H "Accept: application/vnd.github.raw" "https://api.github.com/repos/xyandys/amd-cagra-bench/contents/$F" -o "$F"; done && wc -c fromargs_test.c go_fromargs.sh && bash go_fromargs.sh 2>&1 #t2
