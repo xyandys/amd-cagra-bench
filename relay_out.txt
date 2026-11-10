@@ -1,0 +1,34 @@
+$ pwd; ls -la /workspace | head -20; ls -la /opt/hipvs/lib/libcuvs_c.so /opt/rocm/bin/hipcc; rocm-smi --showid 2>&1 | head -5 #t1
+[rc=0]
+--- stdout ---
+/workspace
+total 108
+drwxr-x--- 15 root root  4096 Nov 10 09:26 .
+drwxr-xr-x  1 root root  4096 Nov 10 09:06 ..
+drwxr-x---  8 root root  4096 Nov 10 09:06 .git
+-rw-r-----  1 root root   158 Nov 10 09:06 .gitattributes
+drwxr-x---  3 root root  4096 Nov 10 09:06 .github
+-rw-r-----  1 root root  4623 Nov 10 09:06 .gitignore
+-rw-r-----  1 root root  2087 Nov 10 09:06 AGENTS.md
+-rw-r-----  1 root root 11357 Nov 10 09:06 LICENSE
+-rw-r-----  1 root root    10 Nov 10 09:06 README.md
+drwxr-x---  5 root root  4096 Nov 10 09:06 blogs
+drwxr-x---  2 root root  4096 Nov 10 09:06 comfyui_ltx_notebook
+drwxr-x---  3 root root  4096 Nov 10 09:06 comfyui_text2viode
+drwxr-x---  3 root root  4096 Nov 10 09:06 dockerfile_list
+drwxr-x---  6 root root  4096 Nov 10 09:06 hunyuanOCRv1.5_notebook
+drwxr-x---  2 root root  4096 Nov 10 09:06 lemonade_notebook
+drwxr-xr-x  2 root root 16384 Nov 10 09:06 lost+found
+drwxr-x---  9 root root  4096 Nov 10 09:06 opencv_amd_end2end
+drwxr-x---  4 root root  4096 Nov 10 09:06 opencv_amd_gpu
+-rw-r--r--  1 root root  3446 Nov 10 09:26 relay.py
+-rw-r--r-- 1 root root 1143408 Sep 15 02:45 /opt/hipvs/lib/libcuvs_c.so
+-rwxr-xr-x 1 root root  249280 May 21 00:47 /opt/rocm/bin/hipcc
+
+
+============================ ROCm System Management Interface ============================
+=========================================== ID ===========================================
+GPU[0]		: Device Name: 		AMD Radeon Graphics
+
+--- stderr ---
+
