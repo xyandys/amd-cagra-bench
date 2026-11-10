@@ -1,8 +1,7 @@
-$ cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/xyandys/amd-cagra-bench/contents/go_bfknn.sh -o go_bfknn.sh && wc -c go_bfknn.sh && sh go_bfknn.sh
-[rc=6]
+$ cd /workspace && sh go_bfknn.sh
+[rc=139]
 --- stdout ---
-617 go_bfknn.sh
-12700 bfknn_test.c
+13412 bfknn_test.c
 === SMALL 20K x 32 ===
 [bfknn] n=20000 dim=32 degree=32 nq=300 itopk=512
 === SIFT 250K x 128 ===
@@ -18,38 +17,29 @@ $ cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.
 + /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn_test.c -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -o bfknn_test
 + echo === SMALL 20K x 32 ===
 + BF_SELFTEST=1 ./bfknn_test 20000 32 32 300 10 512
-bf search: RAFT failure at file=/hipvs_workspace/hipVS-release-rocmds-26.03/cpp/src/neighbors/brute_force_c.cpp line=208: neighbors should be of type int64_t
-Obtained 7 stack frames
-#1 in /opt/hipvs/lib/libcuvs_c.so: raft::logic_error::logic_error(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) +0x102 [0x74159aef6792]
-#2 in /opt/hipvs/lib/libcuvs_c.so(+0x7a06f) [0x74159af1106f]
-#3 in /opt/hipvs/lib/libcuvs_c.so: cuvsBruteForceSearch +0x32 [0x74159af10012]
-#4 in ./bfknn_test() [0x202d1b]
-#5 in /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca) [0x741598e111ca]
-#6 in /lib/x86_64-linux-gnu/libc.so.6: __libc_start_main +0x8b [0x741598e1128b]
-#7 in ./bfknn_test() [0x202505]
+bf search: CUDA error encountered at: file=/hipvs_workspace/hipVS-release-rocmds-26.03/cpp/src/neighbors/./detail/knn_brute_force.cuh line=535: call='cudaPeekAtLastError()', Reason=hipErrorIllegalAddress:an illegal memory access was encountered
+Obtained 10 stack frames
+#1 in /opt/hipvs/lib/libcuvs_c.so: raft::cuda_error::cuda_error(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) +0x102 [0x7b6d9746e162]
+#2 in /opt/hipvs/lib/libcuvs.so: void cuvs::neighbors::detail::brute_force_knn_impl<long, long, float, float>(raft::resources const&, std::vector<float*, std::allocator<float*> >&, std::vector<long, std::allocator<long> >&, long, float*, long, long*, float*, long, bool, bool, std::vector<long, std::allocator<long> >*, cuvsDistanceType, float, std::vector<float*, std::allocator<float*> >*, float const*) +0xcdd [0x7b6d9453ec5d]
+#3 in /opt/hipvs/lib/libcuvs.so: void cuvs::neighbors::detail::brute_force_search<float, long, float, std::experimental::layout_right>(raft::resources const&, cuvs::neighbors::brute_force::index<float, float> const&, std::experimental::mdspan<float const, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float const>, (raft::memory_type)2> >, std::experimental::mdspan<long, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<long>, (raft::memory_type)2> >, std::experimental::mdspan<float, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float>, (raft::memory_type)2> >, std::optional<std::experimental::mdspan<float const, std::experimental::extents<long, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float const>, (raft::memory_type)2> > >) +0x153 [0x7b6d9453c473]
+#4 in /opt/hipvs/lib/libcuvs.so: void cuvs::neighbors::detail::search<float, long, float, std::experimental::layout_right>(raft::resources const&, cuvs::neighbors::brute_force::index<float, float> const&, std::experimental::mdspan<float const, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float const>, (raft::memory_type)2> >, std::experimental::mdspan<long, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<long>, (raft::memory_type)2> >, std::experimental::mdspan<float, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float>, (raft::memory_type)2> >, cuvs::neighbors::filtering::base_filter const&) +0xb4 [0x7b6d9453bf14]
+#5 in /opt/hipvs/lib/libcuvs_c.so(+0x79495) [0x7b6d97489495]
+#6 in /opt/hipvs/lib/libcuvs_c.so: cuvsBruteForceSearch +0x32 [0x7b6d97489012]
+#7 in ./bfknn_test() [0x202d31]
+#8 in /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca) [0x7b6d9538a1ca]
+#9 in /lib/x86_64-linux-gnu/libc.so.6: __libc_start_main +0x8b [0x7b6d9538a28b]
+#10 in ./bfknn_test() [0x202515]
 
 + echo === SIFT 250K x 128 ===
 + ./bfknn_test 250000 128 64 500 10 512
-bf search: RAFT failure at file=/hipvs_workspace/hipVS-release-rocmds-26.03/cpp/src/neighbors/brute_force_c.cpp line=208: neighbors should be of type int64_t
-Obtained 7 stack frames
-#1 in /opt/hipvs/lib/libcuvs_c.so: raft::logic_error::logic_error(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) +0x102 [0x7b3b50498792]
-#2 in /opt/hipvs/lib/libcuvs_c.so(+0x7a06f) [0x7b3b504b306f]
-#3 in /opt/hipvs/lib/libcuvs_c.so: cuvsBruteForceSearch +0x32 [0x7b3b504b2012]
-#4 in ./bfknn_test() [0x202d1b]
-#5 in /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca) [0x7b3b4e3b31ca]
-#6 in /lib/x86_64-linux-gnu/libc.so.6: __libc_start_main +0x8b [0x7b3b4e3b328b]
-#7 in ./bfknn_test() [0x202505]
 
+rocblaslt error: Could not initialize Tensile host:
+unordered_map::at
+Segmentation fault (core dumped)
 + echo === HIDDEN 250K x 256 ===
 + ./bfknn_test 250000 256 64 500 10 512
-bf search: RAFT failure at file=/hipvs_workspace/hipVS-release-rocmds-26.03/cpp/src/neighbors/brute_force_c.cpp line=208: neighbors should be of type int64_t
-Obtained 7 stack frames
-#1 in /opt/hipvs/lib/libcuvs_c.so: raft::logic_error::logic_error(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) +0x102 [0x759fd4693792]
-#2 in /opt/hipvs/lib/libcuvs_c.so(+0x7a06f) [0x759fd46ae06f]
-#3 in /opt/hipvs/lib/libcuvs_c.so: cuvsBruteForceSearch +0x32 [0x759fd46ad012]
-#4 in ./bfknn_test() [0x202d1b]
-#5 in /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca) [0x759fd25ae1ca]
-#6 in /lib/x86_64-linux-gnu/libc.so.6: __libc_start_main +0x8b [0x759fd25ae28b]
-#7 in ./bfknn_test() [0x202505]
 
+rocblaslt error: Could not initialize Tensile host:
+unordered_map::at
+Segmentation fault (core dumped)
 
