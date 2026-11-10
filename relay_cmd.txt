@@ -1,1 +1,1 @@
-cd /workspace && for F in fromargs_test.c go_fromargs.sh; do curl -sL -H "Accept: application/vnd.github.raw" "https://api.github.com/repos/xyandys/amd-cagra-bench/contents/$F" -o "$F"; done && wc -c fromargs_test.c go_fromargs.sh && bash go_fromargs.sh 2>&1 #t2
+nm -D /opt/hipvs/lib/libcuvs_c.so | grep -iE "brute|flat|ffanns" ; echo ---HEADERS--- ; ls /opt/hipvs/include/cuvs/neighbors/ ; echo ---BFH--- ; cat /opt/hipvs/include/cuvs/neighbors/brute_force.h 2>/dev/null || cat /opt/hipvs/include/cuvs/neighbors/bfknn.h 2>/dev/null
