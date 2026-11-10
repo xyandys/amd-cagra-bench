@@ -31,7 +31,9 @@
 #endif
 #define NTHREADS 256
 #define RPB (NTHREADS * RPT)
+#ifndef CBAND
 #define CBAND 32768L
+#endif
 
 #define CUCK(x) do { cudaError_t e_ = (x); if (e_ != cudaSuccess) { \
   fprintf(stderr, "CUDA err %s at line %d\n", cudaGetErrorString(e_), __LINE__); return 9; } } while (0)
