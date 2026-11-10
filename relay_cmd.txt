@@ -1,1 +1,1 @@
-cd /workspace && sh go_bfknn.sh
+cd /workspace && sh go_bfknn.sh # strides-rerun
