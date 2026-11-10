@@ -1,1 +1,1 @@
-sed -n "95,180p" /opt/hipvs/include/cuvs/neighbors/brute_force.h
+sh go_bfknn.sh
