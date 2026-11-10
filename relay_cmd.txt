@@ -1,1 +1,1 @@
-cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/xyandys/amd-cagra-bench/contents/go_bfknn2.sh -o go_bfknn2.sh && sh go_bfknn2.sh
+cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/xyandys/amd-cagra-bench/contents/go_tune.sh -o go_tune.sh && sh go_tune.sh
