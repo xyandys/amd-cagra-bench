@@ -1,1 +1,1 @@
-grep -nE "cuvsError_t|typedef|^[[:space:]]*(int|uint|float|size_t|cuvsDistanceType)[^;]*;" /opt/hipvs/include/cuvs/neighbors/brute_force.h | head -80
+sed -n "95,180p" /opt/hipvs/include/cuvs/neighbors/brute_force.h
