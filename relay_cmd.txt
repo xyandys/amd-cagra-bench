@@ -1,1 +1,1 @@
-ls -la /workspace/bfknn* /workspace/*.fvecs 2>&1; echo ---; ls /workspace | head -30 # t16-envcheck
+cat /workspace/go_valid.sh # t17-catvalid
