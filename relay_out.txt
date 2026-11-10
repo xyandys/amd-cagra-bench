@@ -1,27 +1,92 @@
-$ grep -nE "cuvsError_t|typedef|^[[:space:]]*(int|uint|float|size_t|cuvsDistanceType)[^;]*;" /opt/hipvs/include/cuvs/neighbors/brute_force.h | head -80
+$ sed -n "95,180p" /opt/hipvs/include/cuvs/neighbors/brute_force.h
 [rc=0]
 --- stdout ---
-37:typedef struct {
-38:  uintptr_t addr;
-42:typedef cuvsBruteForceIndex* cuvsBruteForceIndex_t;
-48: * @return cuvsError_t
-50:cuvsError_t cuvsBruteForceIndexCreate(cuvsBruteForceIndex_t* index);
-57:cuvsError_t cuvsBruteForceIndexDestroy(cuvsBruteForceIndex_t index);
-79: * cuvsError_t res_create_status = cuvsResourcesCreate(&res);
-86: * cuvsError_t index_create_status = cuvsBruteForceIndexCreate(&index);
-89: * cuvsError_t build_status = cuvsBruteForceBuild(res, &dataset_tensor, L2Expanded, 0.f, index);
-92: * cuvsError_t index_destroy_status = cuvsBruteForceIndexDestroy(index);
-93: * cuvsError_t res_destroy_status = cuvsResourcesDestroy(res);
-101: * @return cuvsError_t
-103:cuvsError_t cuvsBruteForceBuild(cuvsResources_t res,
-133: * cuvsError_t res_create_status = cuvsResourcesCreate(&res);
-144: * cuvsError_t search_status = cuvsBruteForceSearch(res, index, &queries, &neighbors, &distances,
-148: * cuvsError_t res_destroy_status = cuvsResourcesDestroy(res);
-159:cuvsError_t cuvsBruteForceSearch(cuvsResources_t res,
-184: * cuvsError_t res_create_status = cuvsResourcesCreate(&res);
-195:cuvsError_t cuvsBruteForceSerialize(cuvsResources_t res,
-210: * cuvsError_t res_create_status = cuvsResourcesCreate(&res);
-222:cuvsError_t cuvsBruteForceDeserialize(cuvsResources_t res,
+ *
+ * @param[in] res cuvsResources_t opaque C handle
+ * @param[in] dataset DLManagedTensor* training dataset
+ * @param[in] metric metric
+ * @param[in] metric_arg metric_arg
+ * @param[out] index cuvsBruteForceIndex_t Newly built BRUTEFORCE index
+ * @return cuvsError_t
+ */
+cuvsError_t cuvsBruteForceBuild(cuvsResources_t res,
+                                DLManagedTensor* dataset,
+                                cuvsDistanceType metric,
+                                float metric_arg,
+                                cuvsBruteForceIndex_t index);
+/**
+ * @}
+ */
+
+/**
+ * @defgroup bruteforce_c_index_search Bruteforce index search
+ * @{
+ */
+/**
+ * @brief Search a BRUTEFORCE index with a `DLManagedTensor` which has underlying
+ *        `DLDeviceType` equal to `kDLCUDA`, `kDLCUDAHost`, `kDLCUDAManaged`.
+ *        It is also important to note that the BRUTEFORCE index must have been built
+ *        with the same type of `queries`, such that `index.dtype.code ==
+ *        queries.dl_tensor.dtype.code` Types for input are:
+ *        1. `queries`: `kDLDataType.code == kDLFloat` and `kDLDataType.bits = 32` or
+ *          `kDLDataType.bits = 16`
+ *        2. `neighbors`: `kDLDataType.code == kDLUInt` and `kDLDataType.bits = 32`
+ *        3. `distances`: `kDLDataType.code == kDLFloat` and `kDLDataType.bits = 32`
+ *
+ * @code {.c}
+ * #include <cuvs/core/c_api.h>
+ * #include <cuvs/neighbors/brute_force.h>
+ *
+ * // Create cuvsResources_t
+ * cuvsResources_t res;
+ * cuvsError_t res_create_status = cuvsResourcesCreate(&res);
+ *
+ * // Assume a populated `DLManagedTensor` type here
+ * DLManagedTensor dataset;
+ * DLManagedTensor queries;
+ * DLManagedTensor neighbors;
+ * DLManagedTensor bitmap;
+ *
+ * cuvsFilter prefilter{(uintptr_t)&bitmap, BITMAP};
+ *
+ * // Search the `index` built using `cuvsBruteForceBuild`
+ * cuvsError_t search_status = cuvsBruteForceSearch(res, index, &queries, &neighbors, &distances,
+ * prefilter);
+ *
+ * // de-allocate `res`
+ * cuvsError_t res_destroy_status = cuvsResourcesDestroy(res);
+ * @endcode
+ *
+ * @param[in] res cuvsResources_t opaque C handle
+ * @param[in] index cuvsBruteForceIndex which has been returned by `cuvsBruteForceBuild`
+ * @param[in] queries DLManagedTensor* queries dataset to search
+ * @param[out] neighbors DLManagedTensor* output `k` neighbors for queries
+ * @param[out] distances DLManagedTensor* output `k` distances for queries
+ * @param[in] prefilter cuvsFilter input prefilter that can be used
+              to filter queries and neighbors based on the given bitmap.
+ */
+cuvsError_t cuvsBruteForceSearch(cuvsResources_t res,
+                                 cuvsBruteForceIndex_t index,
+                                 DLManagedTensor* queries,
+                                 DLManagedTensor* neighbors,
+                                 DLManagedTensor* distances,
+                                 cuvsFilter prefilter);
+/**
+ * @}
+ */
+
+/**
+ * @defgroup bruteforce_c_index_serialize BRUTEFORCE C-API serialize functions
+ * @{
+ */
+/**
+ * Save the index to file.
+ * The serialization format can be subject to changes, therefore loading
+ * an index saved with a previous version of cuvs is not guaranteed
+ * to work.
+ *
+ * @code{.c}
+ * #include <cuvs/neighbors/brute_force.h>
 
 --- stderr ---
 
