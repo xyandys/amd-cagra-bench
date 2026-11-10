@@ -1,1 +1,1 @@
-cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/xyandys/amd-cagra-bench/contents/go_vram2.sh -o go_vram2.sh && sh go_vram2.sh # t18-vram2run
+date; echo ALIVE_CHECK; ls -la /workspace/vram2.txt 2>&1; ps aux | grep -c bfknn # t19-alive
