@@ -1,13 +1,21 @@
-$ tail -3 /workspace/vram.log; echo ---FMT---; rocm-smi --showmeminfo vram --csv 2>&1 | head -5
+$ grep -aE "^[0-9]+$" /workspace/vram.txt /workspace/vram.log 2>/dev/null | head -3; echo ---; wc -l /workspace/vram.log; grep -ac card0 /workspace/vram.log 2>/dev/null; echo ---; head -8 /workspace/vram.log; echo ---; grep -a card0 /workspace/vram.log 2>/dev/null | head -3; echo ---; grep -a card0 /workspace/vram.log 2>/dev/null | awk -F, "{gsub(/ /,\"\",\$3); print \$3}" | sort -n | tail -1; echo PEAK_DONE # t15-vrampeek
 [rc=0]
 --- stdout ---
+---
+65 /workspace/vram.log
+0
+---
++ true
++ rocm-smi --showmeminfo vram --csv
 + tail -n1
 
 + sleep 0.2
----FMT---
-device,VRAM Total Memory (B),VRAM Total Used Memory (B)
-card0,51522830336,28028928
-
++ true
++ rocm-smi --showmeminfo vram --csv
++ tail -n1
+---
+---
+PEAK_DONE
 
 --- stderr ---
 
