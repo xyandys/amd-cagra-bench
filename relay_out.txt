@@ -1,34 +1,82 @@
-$ pwd; ls -la /workspace | head -20; ls -la /opt/hipvs/lib/libcuvs_c.so /opt/rocm/bin/hipcc; rocm-smi --showid 2>&1 | head -5 #t1
+$ cd /workspace && for F in fromargs_test.c go_fromargs.sh; do curl -sL -H "Accept: application/vnd.github.raw" "https://api.github.com/repos/xyandys/amd-cagra-bench/contents/$F" -o "$F"; done && wc -c fromargs_test.c go_fromargs.sh && bash go_fromargs.sh 2>&1 #t2
 [rc=0]
 --- stdout ---
-/workspace
-total 108
-drwxr-x--- 15 root root  4096 Nov 10 09:26 .
-drwxr-xr-x  1 root root  4096 Nov 10 09:06 ..
-drwxr-x---  8 root root  4096 Nov 10 09:06 .git
--rw-r-----  1 root root   158 Nov 10 09:06 .gitattributes
-drwxr-x---  3 root root  4096 Nov 10 09:06 .github
--rw-r-----  1 root root  4623 Nov 10 09:06 .gitignore
--rw-r-----  1 root root  2087 Nov 10 09:06 AGENTS.md
--rw-r-----  1 root root 11357 Nov 10 09:06 LICENSE
--rw-r-----  1 root root    10 Nov 10 09:06 README.md
-drwxr-x---  5 root root  4096 Nov 10 09:06 blogs
-drwxr-x---  2 root root  4096 Nov 10 09:06 comfyui_ltx_notebook
-drwxr-x---  3 root root  4096 Nov 10 09:06 comfyui_text2viode
-drwxr-x---  3 root root  4096 Nov 10 09:06 dockerfile_list
-drwxr-x---  6 root root  4096 Nov 10 09:06 hunyuanOCRv1.5_notebook
-drwxr-x---  2 root root  4096 Nov 10 09:06 lemonade_notebook
-drwxr-xr-x  2 root root 16384 Nov 10 09:06 lost+found
-drwxr-x---  9 root root  4096 Nov 10 09:06 opencv_amd_end2end
-drwxr-x---  4 root root  4096 Nov 10 09:06 opencv_amd_gpu
--rw-r--r--  1 root root  3446 Nov 10 09:26 relay.py
--rw-r--r-- 1 root root 1143408 Sep 15 02:45 /opt/hipvs/lib/libcuvs_c.so
--rwxr-xr-x 1 root root  249280 May 21 00:47 /opt/rocm/bin/hipcc
-
-
-============================ ROCm System Management Interface ============================
-=========================================== ID ===========================================
-GPU[0]		: Device Name: 		AMD Radeon Graphics
+ 8795 fromargs_test.c
+ 1276 go_fromargs.sh
+10071 total
++ echo '===== cagra.h: FromArgs signature ====='
+===== cagra.h: FromArgs signature =====
++ grep -n -B2 -A10 cuvsCagraIndexFromArgs /opt/hipvs/include/cuvs/neighbors/cagra.h
+704- *
+705- * // Build the CAGRA Index from the graph/dataset
+706: * cuvsError_t status = cuvsCagraIndexFromArgs(res, metric, &graph, &dataset, index);
+707- *
+708- * @endcode
+709- */
+710:cuvsError_t cuvsCagraIndexFromArgs(cuvsResources_t res,
+711-                                   cuvsDistanceType metric,
+712-                                   DLManagedTensor* graph,
+713-                                   DLManagedTensor* dataset,
+714-                                   cuvsCagraIndex_t index);
+715-
+716-/**
+717- * @brief Merge multiple CAGRA indices into a single CAGRA index.
+718- *
+719- * All input indices must have been built with the same data type (`index.dtype`) and
+720- * have the same dimensionality (`index.dims`). The merged index uses the output
++ echo '===== cuvsDistanceType enum ====='
+===== cuvsDistanceType enum =====
++ grep -rn -B2 -A25 '} cuvsDistanceType' /opt/hipvs/include/cuvs/
++ head -80
+/opt/hipvs/include/cuvs/distance/distance.h-67-  /** Precomputed (special value) **/
+/opt/hipvs/include/cuvs/distance/distance.h-68-  Precomputed = 100
+/opt/hipvs/include/cuvs/distance/distance.h:69:} cuvsDistanceType;
+/opt/hipvs/include/cuvs/distance/distance.h-70-
+/opt/hipvs/include/cuvs/distance/distance.h-71-#ifdef __cplusplus
+/opt/hipvs/include/cuvs/distance/distance.h-72-}
+/opt/hipvs/include/cuvs/distance/distance.h-73-#endif
++ echo '===== symbol presence ====='
+===== symbol presence =====
++ nm -D /opt/hipvs/lib/libcuvs_c.so
++ grep -i 'FromArgs\|CagraSearch\|CagraBuild'
+000000000008ecb0 T _ZN4cuvs9neighbors5cagra23convert_c_search_paramsE21cuvsCagraSearchParamsPNS1_13search_paramsE
+00000000000d5790 T _ZN4cuvs9neighbors5cagra26convert_c_mg_search_paramsE29cuvsMultiGpuCagraSearchParamsPNS0_16mg_search_paramsINS1_13search_paramsEEE
+000000000008f9f0 T cuvsCagraBuild
+00000000000904c0 T cuvsCagraIndexFromArgs
+0000000000091d30 T cuvsCagraSearch
+0000000000097220 T cuvsCagraSearchParamsCreate
+0000000000097310 T cuvsCagraSearchParamsDestroy
+00000000000d5830 T cuvsMultiGpuCagraBuild
+00000000000d61c0 T cuvsMultiGpuCagraSearch
+00000000000d5230 T cuvsMultiGpuCagraSearchParamsCreate
+00000000000d52f0 T cuvsMultiGpuCagraSearchParamsDestroy
++ echo '===== build ====='
+===== build =====
++ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include fromargs_test.c -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -o fromargs_test
++ echo '===== warmup (ROCm kernel cache) ====='
+===== warmup (ROCm kernel cache) =====
++ ./fromargs_test 2000 16 16 100 10 512
++ echo '===== run ====='
+===== run =====
++ ./fromargs_test 5000 32 32 500 10 512
+[fromargs] n=5000 dim=32 degree=32 nq=500 topk=10 itopk=512 metric=0 device_graph=0
+[fromargs] exact graph 0.079s, query GT 0.039s (CPU)
+[fromargs] cuvsCagraIndexFromArgs rc=1 (0.284s): ok
+[fromargs] index size=5000 dims=32
+[fromargs] cuvsCagraSearch rc=1 (0.036s): ok
+[fromargs] recall@10 = 0.9996
+RESULT PASS
++ echo '===== optional: graph on device ====='
+===== optional: graph on device =====
++ GRAPH_ON_DEVICE=1
++ ./fromargs_test 5000 32 32 500 10 512
+[fromargs] n=5000 dim=32 degree=32 nq=500 topk=10 itopk=512 metric=0 device_graph=1
+[fromargs] exact graph 0.149s, query GT 0.003s (CPU)
+[fromargs] cuvsCagraIndexFromArgs rc=1 (0.006s): ok
+[fromargs] index size=5000 dims=32
+[fromargs] cuvsCagraSearch rc=1 (0.034s): ok
+[fromargs] recall@10 = 0.9996
+RESULT PASS
 
 --- stderr ---
 
