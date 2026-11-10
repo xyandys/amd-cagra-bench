@@ -1,1 +1,1 @@
-cat /workspace/go_valid.sh # t17-catvalid
+cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/xyandys/amd-cagra-bench/contents/go_vram2.sh -o go_vram2.sh && sh go_vram2.sh # t18-vram2run
