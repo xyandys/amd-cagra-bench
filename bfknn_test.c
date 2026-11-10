@@ -77,7 +77,9 @@ static void fill_tensor(DLManagedTensor* t, void* data, int device, long rows, l
   t->dl_tensor.dtype.lanes = 1;
   t->dl_tensor.shape = (int64_t*)malloc(sizeof(int64_t) * 2);
   t->dl_tensor.shape[0] = rows; t->dl_tensor.shape[1] = cols;
-  t->dl_tensor.strides = 0;
+  /* explicit row-major strides: bfknn's dlpack conversion may not tolerate NULL */
+  t->dl_tensor.strides = (int64_t*)malloc(sizeof(int64_t) * 2);
+  t->dl_tensor.strides[0] = cols; t->dl_tensor.strides[1] = 1;
   t->dl_tensor.byte_offset = 0;
 }
 
@@ -94,7 +96,8 @@ static void fill_tensor_i64(DLManagedTensor* t, void* data, long rows, long cols
   t->dl_tensor.dtype.lanes = 1;
   t->dl_tensor.shape = (int64_t*)malloc(sizeof(int64_t) * 2);
   t->dl_tensor.shape[0] = rows; t->dl_tensor.shape[1] = cols;
-  t->dl_tensor.strides = 0;
+  t->dl_tensor.strides = (int64_t*)malloc(sizeof(int64_t) * 2);
+  t->dl_tensor.strides[0] = cols; t->dl_tensor.strides[1] = 1;
   t->dl_tensor.byte_offset = 0;
 }
 
