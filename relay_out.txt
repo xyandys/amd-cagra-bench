@@ -1,109 +1,784 @@
-$ cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/xyandys/amd-cagra-bench/contents/go_bfknn2.sh -o go_bfknn2.sh && sh go_bfknn2.sh
+$ cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/xyandys/amd-cagra-bench/contents/go_tune.sh -o go_tune.sh && sh go_tune.sh
 [rc=0]
 --- stdout ---
-15379 bfknn2.cu
-=== SMALL 20K x 32 ===
-[bfknn2] n=20000 dim=32 degree=64 nq=300 itopk=512
-[bfknn2] upload 0.027s | dist_topk 0.053s | merge 0.000s | d2h 0.002s
-[bfknn2] GRAPH_TOTAL = 0.083 s
-[bfknn2] selftest: 0/1280 exact neighbors missing
+17175 bfknn3.cu
+=== b_r4c16 dim128 ===
+[bfknn3] n=250000 dim=128 degree=64 RPT=4 CT=16 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.033s | dist_topk 6.799s | merge 0.023s | d2h 0.025s
+[bfknn3] GRAPH_TOTAL = 6.879 s
+KERNEL_ONLY DONE
+=== b_r4c16 dim256 ===
+[bfknn3] n=250000 dim=256 degree=64 RPT=4 CT=16 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.042s | dist_topk 14.147s | merge 0.024s | d2h 0.025s
+[bfknn3] GRAPH_TOTAL = 14.239 s
+KERNEL_ONLY DONE
+=== b_r2c16 dim128 ===
+[bfknn3] n=250000 dim=128 degree=64 RPT=2 CT=16 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.034s | dist_topk 5.699s | merge 0.024s | d2h 0.023s
+[bfknn3] GRAPH_TOTAL = 5.780 s
+KERNEL_ONLY DONE
+=== b_r2c16 dim256 ===
+[bfknn3] n=250000 dim=256 degree=64 RPT=2 CT=16 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.037s | dist_topk 12.054s | merge 0.024s | d2h 0.023s
+[bfknn3] GRAPH_TOTAL = 12.138 s
+KERNEL_ONLY DONE
+=== b_r2c32 dim128 ===
+[bfknn3] n=250000 dim=128 degree=64 RPT=2 CT=32 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.032s | dist_topk 5.181s | merge 0.023s | d2h 0.023s
+[bfknn3] GRAPH_TOTAL = 5.258 s
+KERNEL_ONLY DONE
+=== b_r2c32 dim256 ===
+[bfknn3] n=250000 dim=256 degree=64 RPT=2 CT=32 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.037s | dist_topk 9.640s | merge 0.023s | d2h 0.025s
+[bfknn3] GRAPH_TOTAL = 9.726 s
+KERNEL_ONLY DONE
+=== b_r1c32 dim128 ===
+[bfknn3] n=250000 dim=128 degree=64 RPT=1 CT=32 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.032s | dist_topk 3.746s | merge 0.024s | d2h 0.023s
+[bfknn3] GRAPH_TOTAL = 3.825 s
+KERNEL_ONLY DONE
+=== b_r1c32 dim256 ===
+[bfknn3] n=250000 dim=256 degree=64 RPT=1 CT=32 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.037s | dist_topk 7.917s | merge 0.024s | d2h 0.024s
+[bfknn3] GRAPH_TOTAL = 8.002 s
+KERNEL_ONLY DONE
+=== b_r1c64 dim128 ===
+[bfknn3] n=250000 dim=128 degree=64 RPT=1 CT=64 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.032s | dist_topk 5.641s | merge 0.023s | d2h 0.024s
+[bfknn3] GRAPH_TOTAL = 5.720 s
+KERNEL_ONLY DONE
+=== b_r1c64 dim256 ===
+[bfknn3] n=250000 dim=256 degree=64 RPT=1 CT=64 nq=200 itopk=512 skip_recall=1
+[bfknn3] upload 0.037s | dist_topk 9.218s | merge 0.024s | d2h 0.023s
+[bfknn3] GRAPH_TOTAL = 9.303 s
+KERNEL_ONLY DONE
+=== SIFT download ===
+-rw-r--r-- 1 root root 516000000 Nov 10 12:28 sift_base.fvecs
+=== SIFT recall KDEG64 r4c16 ===
+[bfknn3] loaded fvecs /workspace/sift_base.fvecs: n=250000 dim=128
+[bfknn3] n=250000 dim=128 degree=64 RPT=4 CT=16 nq=500 itopk=512 skip_recall=0
+[bfknn3] upload 0.033s | dist_topk 6.316s | merge 0.023s | d2h 0.023s
+[bfknn3] GRAPH_TOTAL = 6.395 s
+[bfknn3] selftest: 0/512 exact neighbors missing
 SELFTEST PASS
-[bfknn2] FromArgs rc=1 (0.006s): ok
-[bfknn2] cagra index size=20000 dims=32
-[bfknn2] recall@10 = 1.0000
-[bfknn2] recall@100 = 0.9996
+[bfknn3] FromArgs rc=1 (0.007s): ok
+[bfknn3] cagra index size=250000 dims=128
+[bfknn3] recall@10 = 0.9996
+[bfknn3] recall@100 = 0.9986
+[bfknn3] QPS topk=10: 38128.5 (nq=4096, 50 iters, 5.371 s)
+[bfknn3] QPS topk=100: 39799.2 (nq=4096, 50 iters, 5.146 s)
 RESULT PASS
-=== SIFT 250K x 128 ===
-[bfknn2] n=250000 dim=128 degree=64 nq=500 itopk=512
-[bfknn2] upload 0.032s | dist_topk 7.714s | merge 0.024s | d2h 0.022s
-[bfknn2] GRAPH_TOTAL = 7.792 s
-[bfknn2] FromArgs rc=1 (0.006s): ok
-[bfknn2] cagra index size=250000 dims=128
-[bfknn2] recall@10 = 0.9082
-[bfknn2] recall@100 = 0.8338
-RESULT PASS
-=== HIDDEN 250K x 256 ===
-[bfknn2] n=250000 dim=256 degree=64 nq=500 itopk=512
-[bfknn2] upload 0.037s | dist_topk 14.314s | merge 0.025s | d2h 0.022s
-[bfknn2] GRAPH_TOTAL = 14.398 s
-[bfknn2] FromArgs rc=1 (0.006s): ok
-[bfknn2] cagra index size=250000 dims=256
-[bfknn2] recall@10 = 0.7998
-[bfknn2] recall@100 = 0.7132
+=== SIFT recall KDEG128 ===
+[bfknn3] loaded fvecs /workspace/sift_base.fvecs: n=250000 dim=128
+[bfknn3] n=250000 dim=128 degree=128 RPT=4 CT=16 nq=500 itopk=512 skip_recall=0
+[bfknn3] upload 0.034s | dist_topk 9.969s | merge 0.073s | d2h 0.047s
+[bfknn3] GRAPH_TOTAL = 10.124 s
+[bfknn3] FromArgs rc=1 (0.006s): ok
+[bfknn3] cagra index size=250000 dims=128
+[bfknn3] recall@10 = 0.9998
+[bfknn3] recall@100 = 0.9998
+[bfknn3] QPS topk=10: 29170.9 (nq=4096, 50 iters, 7.021 s)
+[bfknn3] QPS topk=100: 29684.2 (nq=4096, 50 iters, 6.899 s)
 RESULT PASS
 
 --- stderr ---
 + cd /workspace
 + U=https://api.github.com/repos/xyandys/amd-cagra-bench/contents
-+ curl -sL -H Accept: application/vnd.github.raw https://api.github.com/repos/xyandys/amd-cagra-bench/contents/bfknn2.cu -o bfknn2.cu
-+ wc -c bfknn2.cu
-+ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn2.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -o bfknn2
-bfknn2.cu:214:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  214 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
++ curl -sL -H Accept: application/vnd.github.raw https://api.github.com/repos/xyandys/amd-cagra-bench/contents/bfknn3.cu -o bfknn3.cu
++ wc -c bfknn3.cu
++ CC=/opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn3.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib
++ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn3.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -o b_r4c16
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
       |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
   293 | #define cudaMemcpy hipMemcpy
       |                    ^
-bfknn2.cu:396:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
       |   ^~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
   233 | #define cudaFree hipFree
       |                  ^
-bfknn2.cu:396:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
       |                  ^~~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
   233 | #define cudaFree hipFree
       |                  ^
-bfknn2.cu:396:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
       |                                  ^~~~~~~~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
   233 | #define cudaFree hipFree
       |                  ^
-bfknn2.cu:396:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
       |                                                       ^~~~~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
   233 | #define cudaFree hipFree
       |                  ^
-5 warnings generated when compiling for gfx1100.
-bfknn2.cu:214:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  214 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+9 warnings generated when compiling for gfx1100.
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
       |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
   293 | #define cudaMemcpy hipMemcpy
       |                    ^
-bfknn2.cu:396:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
       |   ^~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
   233 | #define cudaFree hipFree
       |                  ^
-bfknn2.cu:396:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
       |                  ^~~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
   233 | #define cudaFree hipFree
       |                  ^
-bfknn2.cu:396:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
       |                                  ^~~~~~~~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
   233 | #define cudaFree hipFree
       |                  ^
-bfknn2.cu:396:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
-  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
       |                                                       ^~~~~~~~~~~~~~~~
 /opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
   233 | #define cudaFree hipFree
       |                  ^
-5 warnings generated when compiling for host.
-+ echo === SMALL 20K x 32 ===
-+ BF_SELFTEST=1 ./bfknn2 20000 32 64 300 10 512
-+ echo === SIFT 250K x 128 ===
-+ ./bfknn2 250000 128 64 500 10 512
-+ echo === HIDDEN 250K x 256 ===
-+ ./bfknn2 250000 256 64 500 10 512
+9 warnings generated when compiling for host.
++ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn3.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -DRPT=2 -o b_r2c16
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for gfx1100.
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for host.
++ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn3.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -DRPT=2 -DCT=32 -o b_r2c32
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for gfx1100.
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for host.
++ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn3.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -DRPT=1 -DCT=32 -o b_r1c32
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for gfx1100.
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for host.
++ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn3.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -DRPT=1 -DCT=64 -o b_r1c64
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for gfx1100.
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for host.
++ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn3.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -DKDEG=128 -o b_d128
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for gfx1100.
+bfknn3.cu:206:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn3.cu:382:5: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |     ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:20: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                    ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:36: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:382:57: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  382 |     cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                         ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn3.cu:449:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  449 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+9 warnings generated when compiling for host.
++ echo === b_r4c16 dim128 ===
++ BF_SKIP_RECALL=1 ./b_r4c16 250000 128 64 200 10 512
++ echo === b_r4c16 dim256 ===
++ BF_SKIP_RECALL=1 ./b_r4c16 250000 256 64 200 10 512
++ echo === b_r2c16 dim128 ===
++ BF_SKIP_RECALL=1 ./b_r2c16 250000 128 64 200 10 512
++ echo === b_r2c16 dim256 ===
++ BF_SKIP_RECALL=1 ./b_r2c16 250000 256 64 200 10 512
++ echo === b_r2c32 dim128 ===
++ BF_SKIP_RECALL=1 ./b_r2c32 250000 128 64 200 10 512
++ echo === b_r2c32 dim256 ===
++ BF_SKIP_RECALL=1 ./b_r2c32 250000 256 64 200 10 512
++ echo === b_r1c32 dim128 ===
++ BF_SKIP_RECALL=1 ./b_r1c32 250000 128 64 200 10 512
++ echo === b_r1c32 dim256 ===
++ BF_SKIP_RECALL=1 ./b_r1c32 250000 256 64 200 10 512
++ echo === b_r1c64 dim128 ===
++ BF_SKIP_RECALL=1 ./b_r1c64 250000 128 64 200 10 512
++ echo === b_r1c64 dim256 ===
++ BF_SKIP_RECALL=1 ./b_r1c64 250000 256 64 200 10 512
++ echo === SIFT download ===
++ [ ! -f sift_base.fvecs ]
++ curl -sL -o sift_base.fvecs https://hf-mirror.com/datasets/qbo-odp/sift1m/resolve/main/sift_base.fvecs
++ ls -la sift_base.fvecs
++ echo === SIFT recall KDEG64 r4c16 ===
++ BF_SIFT=/workspace/sift_base.fvecs BF_SELFTEST=1 BF_QPS=1 ./b_r4c16 250000 128 64 500 10 512
++ echo === SIFT recall KDEG128 ===
++ BF_SIFT=/workspace/sift_base.fvecs BF_QPS=1 ./b_d128 250000 128 64 500 10 512
 
