@@ -1,45 +1,109 @@
-$ cd /workspace && sh go_bfknn.sh # strides-rerun
-[rc=139]
+$ cd /workspace && curl -sL -H "Accept: application/vnd.github.raw" https://api.github.com/repos/xyandys/amd-cagra-bench/contents/go_bfknn2.sh -o go_bfknn2.sh && sh go_bfknn2.sh
+[rc=0]
 --- stdout ---
-13694 bfknn_test.c
+15379 bfknn2.cu
 === SMALL 20K x 32 ===
-[bfknn] n=20000 dim=32 degree=32 nq=300 itopk=512
+[bfknn2] n=20000 dim=32 degree=64 nq=300 itopk=512
+[bfknn2] upload 0.027s | dist_topk 0.053s | merge 0.000s | d2h 0.002s
+[bfknn2] GRAPH_TOTAL = 0.083 s
+[bfknn2] selftest: 0/1280 exact neighbors missing
+SELFTEST PASS
+[bfknn2] FromArgs rc=1 (0.006s): ok
+[bfknn2] cagra index size=20000 dims=32
+[bfknn2] recall@10 = 1.0000
+[bfknn2] recall@100 = 0.9996
+RESULT PASS
 === SIFT 250K x 128 ===
-[bfknn] n=250000 dim=128 degree=64 nq=500 itopk=512
+[bfknn2] n=250000 dim=128 degree=64 nq=500 itopk=512
+[bfknn2] upload 0.032s | dist_topk 7.714s | merge 0.024s | d2h 0.022s
+[bfknn2] GRAPH_TOTAL = 7.792 s
+[bfknn2] FromArgs rc=1 (0.006s): ok
+[bfknn2] cagra index size=250000 dims=128
+[bfknn2] recall@10 = 0.9082
+[bfknn2] recall@100 = 0.8338
+RESULT PASS
 === HIDDEN 250K x 256 ===
-[bfknn] n=250000 dim=256 degree=64 nq=500 itopk=512
+[bfknn2] n=250000 dim=256 degree=64 nq=500 itopk=512
+[bfknn2] upload 0.037s | dist_topk 14.314s | merge 0.025s | d2h 0.022s
+[bfknn2] GRAPH_TOTAL = 14.398 s
+[bfknn2] FromArgs rc=1 (0.006s): ok
+[bfknn2] cagra index size=250000 dims=256
+[bfknn2] recall@10 = 0.7998
+[bfknn2] recall@100 = 0.7132
+RESULT PASS
 
 --- stderr ---
 + cd /workspace
 + U=https://api.github.com/repos/xyandys/amd-cagra-bench/contents
-+ curl -sL -H Accept: application/vnd.github.raw https://api.github.com/repos/xyandys/amd-cagra-bench/contents/bfknn_test.c -o bfknn_test.c
-+ wc -c bfknn_test.c
-+ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn_test.c -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -o bfknn_test
++ curl -sL -H Accept: application/vnd.github.raw https://api.github.com/repos/xyandys/amd-cagra-bench/contents/bfknn2.cu -o bfknn2.cu
++ wc -c bfknn2.cu
++ /opt/rocm/bin/hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include bfknn2.cu -L/opt/hipvs/lib -lcuvs_c -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -o bfknn2
+bfknn2.cu:214:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  214 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn2.cu:396:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn2.cu:396:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn2.cu:396:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn2.cu:396:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+5 warnings generated when compiling for gfx1100.
+bfknn2.cu:214:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  214 |   cudaMemcpy(qd, qs, sizeof(float) * (size_t)nq * dim, cudaMemcpyDefault);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+bfknn2.cu:396:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |   ^~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn2.cu:396:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                  ^~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn2.cu:396:34: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+bfknn2.cu:396:55: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  396 |   cudaFree(pid); cudaFree(pval); cudaFree(graph_dev); cudaFree(ds_dev);
+      |                                                       ^~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+5 warnings generated when compiling for host.
 + echo === SMALL 20K x 32 ===
-+ BF_SELFTEST=1 ./bfknn_test 20000 32 32 300 10 512
-bf search: CUDA error encountered at: file=/hipvs_workspace/hipVS-release-rocmds-26.03/cpp/src/neighbors/./detail/knn_brute_force.cuh line=535: call='cudaPeekAtLastError()', Reason=hipErrorIllegalAddress:an illegal memory access was encountered
-Obtained 10 stack frames
-#1 in /opt/hipvs/lib/libcuvs_c.so: raft::cuda_error::cuda_error(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) +0x102 [0x713db0571162]
-#2 in /opt/hipvs/lib/libcuvs.so: void cuvs::neighbors::detail::brute_force_knn_impl<long, long, float, float>(raft::resources const&, std::vector<float*, std::allocator<float*> >&, std::vector<long, std::allocator<long> >&, long, float*, long, long*, float*, long, bool, bool, std::vector<long, std::allocator<long> >*, cuvsDistanceType, float, std::vector<float*, std::allocator<float*> >*, float const*) +0xcdd [0x713dad641c5d]
-#3 in /opt/hipvs/lib/libcuvs.so: void cuvs::neighbors::detail::brute_force_search<float, long, float, std::experimental::layout_right>(raft::resources const&, cuvs::neighbors::brute_force::index<float, float> const&, std::experimental::mdspan<float const, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float const>, (raft::memory_type)2> >, std::experimental::mdspan<long, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<long>, (raft::memory_type)2> >, std::experimental::mdspan<float, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float>, (raft::memory_type)2> >, std::optional<std::experimental::mdspan<float const, std::experimental::extents<long, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float const>, (raft::memory_type)2> > >) +0x153 [0x713dad63f473]
-#4 in /opt/hipvs/lib/libcuvs.so: void cuvs::neighbors::detail::search<float, long, float, std::experimental::layout_right>(raft::resources const&, cuvs::neighbors::brute_force::index<float, float> const&, std::experimental::mdspan<float const, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float const>, (raft::memory_type)2> >, std::experimental::mdspan<long, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<long>, (raft::memory_type)2> >, std::experimental::mdspan<float, std::experimental::extents<long, 18446744073709551615ul, 18446744073709551615ul>, std::experimental::layout_right, raft::host_device_accessor<std::experimental::default_accessor<float>, (raft::memory_type)2> >, cuvs::neighbors::filtering::base_filter const&) +0xb4 [0x713dad63ef14]
-#5 in /opt/hipvs/lib/libcuvs_c.so(+0x79495) [0x713db058c495]
-#6 in /opt/hipvs/lib/libcuvs_c.so: cuvsBruteForceSearch +0x32 [0x713db058c012]
-#7 in ./bfknn_test() [0x202db6]
-#8 in /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca) [0x713dae48d1ca]
-#9 in /lib/x86_64-linux-gnu/libc.so.6: __libc_start_main +0x8b [0x713dae48d28b]
-#10 in ./bfknn_test() [0x202515]
-
++ BF_SELFTEST=1 ./bfknn2 20000 32 64 300 10 512
 + echo === SIFT 250K x 128 ===
-+ ./bfknn_test 250000 128 64 500 10 512
-
-rocblaslt error: Could not initialize Tensile host:
-unordered_map::at
-Segmentation fault (core dumped)
++ ./bfknn2 250000 128 64 500 10 512
 + echo === HIDDEN 250K x 256 ===
-+ ./bfknn_test 250000 256 64 500 10 512
-
-rocblaslt error: Could not initialize Tensile host:
-unordered_map::at
-Segmentation fault (core dumped)
++ ./bfknn2 250000 256 64 500 10 512
 
