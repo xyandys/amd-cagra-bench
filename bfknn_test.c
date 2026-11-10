@@ -81,6 +81,23 @@ static void fill_tensor(DLManagedTensor* t, void* data, int device, long rows, l
   t->dl_tensor.byte_offset = 0;
 }
 
+/* cuvsBruteForceSearch demands int64 neighbors despite what brute_force.h
+ * docs claim (uint32); hipVS build checks dtype.code == kDLInt, bits == 64. */
+static void fill_tensor_i64(DLManagedTensor* t, void* data, long rows, long cols) {
+  memset(t, 0, sizeof(*t));
+  t->dl_tensor.data = data;
+  t->dl_tensor.device.device_type = kDLCUDA;
+  t->dl_tensor.device.device_id = 0;
+  t->dl_tensor.ndim = 2;
+  t->dl_tensor.dtype.code = kDLInt;
+  t->dl_tensor.dtype.bits = 64;
+  t->dl_tensor.dtype.lanes = 1;
+  t->dl_tensor.shape = (int64_t*)malloc(sizeof(int64_t) * 2);
+  t->dl_tensor.shape[0] = rows; t->dl_tensor.shape[1] = cols;
+  t->dl_tensor.strides = 0;
+  t->dl_tensor.byte_offset = 0;
+}
+
 /* one CAGRA search batch; mirrors the bridge's search path */
 static int cagra_search_batch(cuvsResources_t res, cuvsCagraIndex_t idx, long dim,
                               const float* qs, long nq, long topk, unsigned* out_ids,
@@ -140,7 +157,7 @@ int main(int argc, char** argv) {
 
   float* base = (float*)malloc(sizeof(float) * (size_t)n * dim);
   float* qs   = (float*)malloc(sizeof(float) * (size_t)nq * dim);
-  unsigned* nb = (unsigned*)malloc(sizeof(unsigned) * (size_t)n * kp1);
+  long long* nb = (long long*)malloc(sizeof(long long) * (size_t)n * kp1);
   unsigned* graph = (unsigned*)malloc(sizeof(unsigned) * (size_t)n * degree);
   long* gt10 = (long*)malloc(sizeof(long) * (size_t)nq * 10);
   long* gt100 = (long*)malloc(sizeof(long) * (size_t)nq * 100);
@@ -179,7 +196,7 @@ int main(int argc, char** argv) {
 
   DLManagedTensor qt, nbt, dt;
   fill_tensor(&qt, ds_dev, 1, n, dim, 0);           /* queries = dataset itself */
-  fill_tensor(&nbt, nb_dev, 1, n, kp1, 1);
+  fill_tensor_i64(&nbt, nb_dev, n, kp1);
   fill_tensor(&dt, dist_dev, 1, n, kp1, 0);
   cuvsFilter f; f.type = NO_FILTER; f.addr = (uintptr_t)0;
 
@@ -194,12 +211,12 @@ int main(int argc, char** argv) {
 
   /* ---- drop self, build graph ---- */
   for (long i = 0; i < n; i++) {
-    const unsigned* row = nb + (size_t)i * kp1;
+    const long long* row = nb + (size_t)i * kp1;
     unsigned* out = graph + (size_t)i * degree;
     long w = 0;
     for (long c = 0; c < kp1 && w < degree; c++)
-      if (row[c] != (unsigned)i) out[w++] = row[c];
-    while (w < degree) out[w++] = row[kp1 - 1];
+      if (row[c] != (long long)i) out[w++] = (unsigned)row[c];
+    while (w < degree) out[w++] = (unsigned)row[kp1 - 1];
   }
   double t7 = now_sec();
 
