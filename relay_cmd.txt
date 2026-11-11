@@ -1,1 +1,1 @@
-cd /workspace/w && LD_LIBRARY_PATH=/workspace/w ldd ./bridge_selftest | grep -i bridge; LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -10 # t30-nq8-ours
+cd /workspace/w && LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 2048 50 sift_query.fvecs 2>&1 | tail -10; echo '=== BASE-VRAM-NND50 ==='; LD_LIBRARY_PATH=/seekdb_workspace/bridge SEEKDB_CUVS_NITER=50 ./bridge_selftest sift_base.fvecs 250000 128 1 1 sift_query.fvecs 2>&1 | tail -8 # t31-qps-base
