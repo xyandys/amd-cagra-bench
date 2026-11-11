@@ -1,29 +1,17 @@
-$ ls -la /seekdb_workspace/bin | head -15; echo '=== datasets ==='; ls -la /seekdb_workspace/datasets | head -15; echo '=== entrypoint ==='; head -50 /seekdb_workspace/scripts/entrypoint.sh # t36-scripts
+$ cd /workspace/w && mkdir -p d96 && hipcc -shared -fPIC -O2 -D__HIP_PLATFORM_AMD__ -DSK_DEG=96 -I/opt/hipvs/include -I/opt/rocm/include -x hip seekdb_cuvs_bridge.cpp -L/opt/hipvs/lib -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -lcuvs_c -o d96/libseekdb_cuvs_bridge.so 2>&1 | grep -E ' error' | head -3; ls -la d96/libseekdb_cuvs_bridge.so && LD_LIBRARY_PATH=/workspace/w/d96 ./bridge_selftest sift_base.fvecs 250000 128 2048 50 sift_query.fvecs 2>&1 | tail -10 # t37-deg96
 [rc=0]
 --- stdout ---
-total 1346108
-drwxr-xr-x 1 root root       4096 Sep 15 02:45 .
-drwxr-xr-x 1 root root       4096 Aug 18 10:01 ..
--rwxr-xr-x 1 root root 1378402040 Sep 15 02:45 seekdb
-=== datasets ===
-total 5064
-drwxr-xr-x 2 root root    4096 Aug 18 09:41 .
-drwxr-xr-x 1 root root    4096 Aug 18 10:01 ..
--rw-r--r-- 1 root root 5120000 Aug 17 09:14 base.f32
--rw-rw-r-- 1 root root    4000 Aug 17 12:42 gt_100x10.i32
--rw-r--r-- 1 root root   51200 Aug 17 09:14 query.f32
-=== entrypoint ===
-#!/usr/bin/env bash
-# seekdb + hipVS notebook image entrypoint: starts Jupyter with root at the
-# mounted /workspace. The observer is started from inside the notebook.
-set -e
-export LD_LIBRARY_PATH=/seekdb_workspace/bridge:/opt/hipvs/lib:/opt/rocm/lib
-mkdir -p /workspace
-exec /opt/venv/bin/python3 -m jupyter_server \
-     --allow-root --ip=0.0.0.0 --port="${JUPYTER_PORT:-8888}" --no-browser \
-     --ServerApp.root_dir=/workspace \
-     --ServerApp.allow_remote_access=True \
-     --IdentityProvider.token="${JUPYTER_TOKEN:-seekdb-hipvs}"
+-rwxr-xr-x 1 root root 284816 Nov 11 10:39 d96/libseekdb_cuvs_bridge.so
+CFG n=250000 dim=128 nq=2048 nq_recall=50 vram_idle_mb=28028928
+BUILD_MS=3812 VRAM_PEAK_MB=860745728 VRAM_DELTA_MB=832716800
+SEARCH10 topk=10 first_ms=30.63 batch_ms=53 QPS=38748.6
+SEARCH100 topk=100 first_ms=2.64 batch_ms=52 QPS=39316.8
+RECALL@10=1.0000 (500/500)
+RECALL@100=0.9982 (4991/5000)
+DESERIALIZE_MS=70
+SEARCH10_AFTER_LOAD topk=10 first_ms=2.82 batch_ms=53 QPS=38756.4
+IDS_MATCH_AFTER_LOAD=0.9996 (20471/20480)
+DONE
 
 --- stderr ---
 
