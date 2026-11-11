@@ -1,37 +1,26 @@
-$ cd /workspace && date && ls -la && rocm-smi --showproductname 2>&1 | tail -5 && nproc # t20-probe
+$ mkdir -p /workspace/w && cd /workspace/w && python3 -c 'import base64,json,urllib.request as u; T=open("/workspace/.ght").read().strip(); b="https://api.github.com/repos/xyandys/amd-cagra-bench/contents/"; m={"seekdb_cuvs_bridge.cpp":"seekdb_cuvs_bridge.cpp","bridge_build.sh":"build.sh","bridge_selftest.cpp":"bridge_selftest.cpp","seekdb_cuvs_bridge.h":"seekdb_cuvs_bridge.h"}; [open("/workspace/w/"+v,"wb").write(base64.b64decode(json.load(u.urlopen(u.Request(b+k+"?ref=main",headers={"Authorization":"bearer "+T}),timeout=60))["content"])) for k,v in m.items()]; print("fetched")' && chmod +x build.sh && ls -la && curl -sI -m 25 'https://hf-mirror.com/datasets/qbo-odp/sift1m/resolve/main/sift_base.fvecs' | head -12 # t21-fetch
 [rc=0]
 --- stdout ---
-Wed Nov 11 10:02:54 UTC 2026
-total 120
-drwxr-x--- 15 root root  4096 Nov 11 10:02 .
-drwxr-xr-x  1 root root  4096 Nov 11 08:53 ..
-drwxr-x---  8 root root  4096 Nov 11 08:53 .git
--rw-r-----  1 root root   158 Nov 11 08:53 .gitattributes
-drwxr-x---  3 root root  4096 Nov 11 08:53 .github
--rw-r-----  1 root root  4623 Nov 11 08:53 .gitignore
--rw-r-----  1 root root  2087 Nov 11 08:53 AGENTS.md
--rw-r-----  1 root root 11357 Nov 11 08:53 LICENSE
--rw-r-----  1 root root    10 Nov 11 08:53 README.md
-drwxr-x---  5 root root  4096 Nov 11 08:53 blogs
-drwxr-x---  2 root root  4096 Nov 11 08:53 comfyui_ltx_notebook
-drwxr-x---  3 root root  4096 Nov 11 08:53 comfyui_text2viode
-drwxr-x---  3 root root  4096 Nov 11 08:53 dockerfile_list
-drwxr-x---  6 root root  4096 Nov 11 08:53 hunyuanOCRv1.5_notebook
-drwxr-x---  2 root root  4096 Nov 11 08:53 lemonade_notebook
-drwxr-xr-x  2 root root 16384 Nov 11 08:53 lost+found
-drwxr-x---  9 root root  4096 Nov 11 08:53 opencv_amd_end2end
-drwxr-x---  4 root root  4096 Nov 11 08:53 opencv_amd_gpu
--rw-r--r--  1 root root  5617 Nov 11 10:02 relay.json
--rw-r--r--  1 root root   212 Nov 11 10:02 relay.log
--rw-r--r--  1 root root  3446 Nov 11 10:02 relay.py
-drwxr-x---  5 root root  4096 Nov 11 08:55 seekdb_hipvs_notebook
-drwxr-x--- 13 root root  4096 Nov 11 08:53 ultralytics_yolo26
-GPU[0]		: Node ID: 		4
-GPU[0]		: GUID: 		60148
-GPU[0]		: GFX Version: 		gfx1100
-==========================================================================================
-================================== End of ROCm SMI Log ===================================
-128
+fetched
+total 52
+drwxr-xr-x  2 root root  4096 Nov 11 10:04 .
+drwxr-x--- 16 root root  4096 Nov 11 10:04 ..
+-rw-r--r--  1 root root  8446 Nov 11 10:04 bridge_selftest.cpp
+-rwxr-xr-x  1 root root   989 Nov 11 10:04 build.sh
+-rw-r--r--  1 root root 24100 Nov 11 10:04 seekdb_cuvs_bridge.cpp
+-rw-r--r--  1 root root  1602 Nov 11 10:04 seekdb_cuvs_bridge.h
+HTTP/1.1 200 Connection established
+
+HTTP/2 302 
+access-control-allow-origin: https://huggingface.co
+access-control-expose-headers: X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy
+access-control-max-age: 86400
+alt-svc: h3=":443"; ma=2592000
+cache-control: no-store
+content-type: text/plain; charset=utf-8
+cross-origin-opener-policy: same-origin
+date: Wed, 11 Nov 2026 10:04:05 GMT
+link: <https://huggingface.co/api/datasets/qbo-odp/sift1m/xet-read-token/bd8ccad6c2a0a0a3a7519f6d37c0e5a2d59fe55b>; rel="xet-auth", <https://cas-server.xethub.hf.co/v1/reconstructions/f224fb5a74ac712ea07f4adf493d20331f3f168e9cdae35e47d2e320fbccf017>; rel="xet-reconstruction-info"
 
 --- stderr ---
 
