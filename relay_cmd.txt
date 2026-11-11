@@ -1,1 +1,1 @@
-date; echo ALIVE_CHECK; ls -la /workspace/vram2.txt 2>&1; ps aux | grep -c bfknn # t19-alive
+cd /workspace && date && ls -la && rocm-smi --showproductname 2>&1 | tail -5 && nproc # t20-probe
