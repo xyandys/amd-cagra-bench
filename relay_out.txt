@@ -1,12 +1,14 @@
-$ cd /workspace/w && LD_LIBRARY_PATH=/workspace/w/base SEEKDB_CUVS_NITER=15 ./bridge_selftest sift_base.fvecs 250000 128 1 1 sift_query.fvecs 2>&1 | grep -E 'BUILD_MS|RECALL'; LD_LIBRARY_PATH=/workspace/w/base SEEKDB_CUVS_NITER=50 ./bridge_selftest sift256.fvecs 250000 256 1 1 sift256_query.fvecs 2>&1 | grep -E 'BUILD_MS|RECALL' # t41-nn-vram2
+$ cd /workspace/w && mkdir -p d96w && hipcc -shared -fPIC -O2 -D__HIP_PLATFORM_AMD__ -DSK_DEG=96 -DSK_WIDE_BAND=1048576L -I/opt/hipvs/include -I/opt/rocm/include -x hip seekdb_cuvs_bridge.cpp -L/opt/hipvs/lib -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -lcuvs_c -o d96w/libseekdb_cuvs_bridge.so 2>&1 | grep -E ' error' | head -3; ls -la d96w/libseekdb_cuvs_bridge.so && LD_LIBRARY_PATH=/workspace/w/d96w ./bridge_selftest sift_base.fvecs 250000 128 2048 50 sift_query.fvecs 2>&1 | grep -E 'BUILD_MS|QPS|RECALL|DESERIALIZE' # t42-deg96-wide128
 [rc=0]
 --- stdout ---
-BUILD_MS=13060 VRAM_PEAK_MB=603648000 VRAM_DELTA_MB=575619072
-RECALL@10=1.0000 (10/10)
-RECALL@100=1.0000 (100/100)
-BUILD_MS=8886 VRAM_PEAK_MB=794931200 VRAM_DELTA_MB=766902272
-RECALL@10=0.3000 (3/10)
-RECALL@100=0.5000 (50/100)
+-rwxr-xr-x 1 root root 284816 Nov 11 10:54 d96w/libseekdb_cuvs_bridge.so
+BUILD_MS=3757 VRAM_PEAK_MB=860745728 VRAM_DELTA_MB=832716800
+SEARCH10 topk=10 first_ms=29.96 batch_ms=52 QPS=39080.8
+SEARCH100 topk=100 first_ms=2.62 batch_ms=52 QPS=39225.6
+RECALL@10=1.0000 (500/500)
+RECALL@100=0.9982 (4991/5000)
+DESERIALIZE_MS=65
+SEARCH10_AFTER_LOAD topk=10 first_ms=2.83 batch_ms=53 QPS=38866.4
 
 --- stderr ---
 
