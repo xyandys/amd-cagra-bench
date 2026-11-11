@@ -1,17 +1,23 @@
-$ cd /workspace/w && LD_LIBRARY_PATH=/workspace/w ldd ./bridge_selftest | grep -i bridge; LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -10 # t30-nq8-ours
+$ cd /workspace/w && LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 2048 50 sift_query.fvecs 2>&1 | tail -10; echo '=== BASE-VRAM-NND50 ==='; LD_LIBRARY_PATH=/seekdb_workspace/bridge SEEKDB_CUVS_NITER=50 ./bridge_selftest sift_base.fvecs 250000 128 1 1 sift_query.fvecs 2>&1 | tail -8 # t31-qps-base
 [rc=0]
 --- stdout ---
-	libseekdb_cuvs_bridge.so => /workspace/w/libseekdb_cuvs_bridge.so (0x00007dc100343000)
-CFG n=250000 dim=128 nq=8 nq_recall=4 vram_idle_mb=28028928
-BUILD_MS=3157 VRAM_PEAK_MB=709668864 VRAM_DELTA_MB=681639936
-SEARCH10 topk=10 first_ms=28.52 batch_ms=4 QPS=2139.4
-SEARCH100 topk=100 first_ms=3.07 batch_ms=4 QPS=2224.2
-RECALL@10=1.0000 (40/40)
-RECALL@100=0.9875 (395/400)
-DESERIALIZE_MS=91
-SEARCH10_AFTER_LOAD topk=10 first_ms=3.41 batch_ms=4 QPS=2192.7
-IDS_MATCH_AFTER_LOAD=1.0000 (80/80)
+CFG n=250000 dim=128 nq=2048 nq_recall=50 vram_idle_mb=28028928
+BUILD_MS=3128 VRAM_PEAK_MB=709668864 VRAM_DELTA_MB=681639936
+SEARCH10 topk=10 first_ms=29.23 batch_ms=53 QPS=38369.6
+SEARCH100 topk=100 first_ms=3.20 batch_ms=53 QPS=38519.5
+RECALL@10=0.9980 (499/500)
+RECALL@100=0.9958 (4979/5000)
+DESERIALIZE_MS=56
+SEARCH10_AFTER_LOAD topk=10 first_ms=3.41 batch_ms=53 QPS=38671.4
+IDS_MATCH_AFTER_LOAD=1.0000 (20480/20480)
 DONE
+=== BASE-VRAM-NND50 ===
+[  3714][10:22:42:076314][warning] Self-included ratio is low: 4.41 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
+CFG n=250000 dim=128 nq=1 nq_recall=1 vram_idle_mb=28028928
+BUILD_MS=3839 VRAM_PEAK_MB=840507392 VRAM_DELTA_MB=812478464
+SEARCH10 topk=10 first_ms=16.72 batch_ms=0 QPS=2488.1
+[seekdb_cuvs] search rc=15: (null)
 
 --- stderr ---
+Segmentation fault (core dumped)
 
