@@ -1,13 +1,18 @@
-$ cd /workspace/w && T=$(cat /workspace/.ght) && curl -sS -H "Authorization: bearer $T" 'https://api.github.com/repos/xyandys/amd-cagra-bench/contents/seekdb_cuvs_bridge.cpp?ref=main' -o nb.json && python3 -c "import json,base64;d=json.load(open('nb.json'));open('seekdb_cuvs_bridge.cpp','wb').write(base64.b64decode(d['content']))" && sed -i 's/\r$//' seekdb_cuvs_bridge.cpp && ./build.sh >/dev/null 2>&1; ls -la libseekdb_cuvs_bridge.so; LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 2048 50 sift_query.fvecs 2>&1 | grep -E 'BUILD_MS|RECALL'; LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift256.fvecs 250000 256 2048 50 sift256_query.fvecs 2>&1 | grep -E 'BUILD_MS|RECALL' # t43-free-scratch-deg64
+$ cd /workspace/w && T=$(cat /workspace/.ght) && curl -sS -H "Authorization: bearer $T" 'https://api.github.com/repos/xyandys/amd-cagra-bench/contents/seekdb_cuvs_bridge.cpp?ref=main' -o nb.json && python3 -c "import json,base64;d=json.load(open('nb.json'));open('seekdb_cuvs_bridge.cpp','wb').write(base64.b64decode(d['content']))" && sed -i 's/\r$//' seekdb_cuvs_bridge.cpp && ./build.sh >/dev/null 2>&1; for w in 8 16; do echo "== width $w 128d =="; SEEKDB_CUVS_WIDTH=$w LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 2048 50 sift_query.fvecs 2>&1 | grep -E 'QPS|RECALL@'; done # t44-width
 [rc=0]
 --- stdout ---
--rwxr-xr-x 1 root root 202432 Nov 11 10:58 libseekdb_cuvs_bridge.so
-BUILD_MS=3165 VRAM_PEAK_MB=709668864 VRAM_DELTA_MB=681639936
+== width 8 128d ==
+SEARCH10 topk=10 first_ms=28.35 batch_ms=40 QPS=51593.6
+SEARCH100 topk=100 first_ms=1.53 batch_ms=38 QPS=53260.8
 RECALL@10=0.9980 (499/500)
 RECALL@100=0.9958 (4979/5000)
-BUILD_MS=6597 VRAM_PEAK_MB=837844992 VRAM_DELTA_MB=809816064
-RECALL@10=0.9800 (490/500)
-RECALL@100=0.9698 (4849/5000)
+SEARCH10_AFTER_LOAD topk=10 first_ms=1.81 batch_ms=39 QPS=53045.2
+== width 16 128d ==
+SEARCH10 topk=10 first_ms=31.77 batch_ms=32 QPS=63574.0
+SEARCH100 topk=100 first_ms=1.05 batch_ms=31 QPS=65409.5
+RECALL@10=0.9980 (499/500)
+RECALL@100=0.9962 (4981/5000)
+SEARCH10_AFTER_LOAD topk=10 first_ms=1.29 batch_ms=32 QPS=63995.4
 
 --- stderr ---
 
