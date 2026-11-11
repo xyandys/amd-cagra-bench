@@ -1,20 +1,29 @@
-$ ls /seekdb_workspace/ 2>/dev/null; echo '--- bridge dir ---'; ls -la /seekdb_workspace/bridge/ 2>/dev/null; echo '--- top bins ---'; ls /seekdb_workspace/*/bin 2>/dev/null | head -20; echo '--- files ---'; find /seekdb_workspace -maxdepth 2 -name '*.sh' -o -maxdepth 2 -name '*.py' -o -maxdepth 2 -name '*.json' 2>/dev/null | head -20 # t35-explore
+$ ls -la /seekdb_workspace/bin | head -15; echo '=== datasets ==='; ls -la /seekdb_workspace/datasets | head -15; echo '=== entrypoint ==='; head -50 /seekdb_workspace/scripts/entrypoint.sh # t36-scripts
 [rc=0]
 --- stdout ---
-bin
-bridge
-datasets
-scripts
---- bridge dir ---
-total 20
-drwxr-xr-x 1 root root 4096 Sep 15 02:45 .
-drwxr-xr-x 1 root root 4096 Aug 18 10:01 ..
--rwxr-xr-x 1 root root 9960 Sep 15 02:45 libseekdb_cuvs_bridge.so
---- top bins ---
---- files ---
-/seekdb_workspace/scripts/start_observer.sh
-/seekdb_workspace/scripts/entrypoint.sh
-/seekdb_workspace/scripts/entrypoint-latest.sh
+total 1346108
+drwxr-xr-x 1 root root       4096 Sep 15 02:45 .
+drwxr-xr-x 1 root root       4096 Aug 18 10:01 ..
+-rwxr-xr-x 1 root root 1378402040 Sep 15 02:45 seekdb
+=== datasets ===
+total 5064
+drwxr-xr-x 2 root root    4096 Aug 18 09:41 .
+drwxr-xr-x 1 root root    4096 Aug 18 10:01 ..
+-rw-r--r-- 1 root root 5120000 Aug 17 09:14 base.f32
+-rw-rw-r-- 1 root root    4000 Aug 17 12:42 gt_100x10.i32
+-rw-r--r-- 1 root root   51200 Aug 17 09:14 query.f32
+=== entrypoint ===
+#!/usr/bin/env bash
+# seekdb + hipVS notebook image entrypoint: starts Jupyter with root at the
+# mounted /workspace. The observer is started from inside the notebook.
+set -e
+export LD_LIBRARY_PATH=/seekdb_workspace/bridge:/opt/hipvs/lib:/opt/rocm/lib
+mkdir -p /workspace
+exec /opt/venv/bin/python3 -m jupyter_server \
+     --allow-root --ip=0.0.0.0 --port="${JUPYTER_PORT:-8888}" --no-browser \
+     --ServerApp.root_dir=/workspace \
+     --ServerApp.allow_remote_access=True \
+     --IdentityProvider.token="${JUPYTER_TOKEN:-seekdb-hipvs}"
 
 --- stderr ---
 
