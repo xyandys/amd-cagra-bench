@@ -1,1 +1,1 @@
-cd /workspace/w && ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -8; echo '=== NND niter1 ==='; SEEKDB_CUVS_EXACT=0 SEEKDB_CUVS_NITER=1 ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -8 # t28-nq8
+cd /workspace/w && ldd ./bridge_selftest | grep -i bridge; echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH; ls -la /opt/hipvs/lib/ 2>/dev/null | head -10 # t29-ldd
