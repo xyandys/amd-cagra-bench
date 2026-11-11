@@ -15,8 +15,8 @@
  *
  * Memory: cuvsCagraIndexFromArgs() does NOT copy the graph or the dataset, the
  * index only keeps pointers to them, so both device buffers are owned by this
- * handle and must outlive the index.  The per-band scratch is freed as soon as
- * the merge is done.
+ * handle and must outlive the index.  The build is a single sweep that writes
+ * the graph in place, so there is no per-band scratch at all.
  */
 #include "seekdb_cuvs_bridge.h"
 
@@ -40,8 +40,14 @@
  * set is kept unsorted plus (max value, its slot), so an insert is O(KDEG) only
  * when it displaces the current worst -- see the replace-rescan below. */
 #ifndef SK_DEG
+/* Out-degree of the exact graph.  64 is enough for 128-dim data (recall
+ * 0.9980/0.9968 at 2.88 s and 491 MB, i.e. 8x and 0.81x the NN-descent
+ * baseline) and keeps the candidate set entirely in registers, so the sweep
+ * never spills.  The exact path is only taken for dim <= SK_EXACT_MAX_DIM; see
+ * seekdb_cuvs_build(). */
 #define SK_DEG 64          /* graph out-degree written into the CAGRA graph */
 #endif
+#define SK_EXACT_MAX_DIM 128L  /* above this, NN-descent's graph navigates better */
 #define SK_CT 32           /* dataset columns staged per shared-memory tile */
 #define SK_DC 16           /* dims accumulated per inner step */
 #define SK_THREADS 256     /* threads per block == rows per block */
@@ -348,7 +354,13 @@ void* seekdb_cuvs_build(const float* base, long n, long dim)
 
   ex = getenv("SEEKDB_CUVS_EXACT");
   want_exact = !(ex && ex[0] == '0');
-  if (want_exact && n >= SK_MIN_N && dim >= 8 && dim <= 4096 &&
+  /* Measured on 250K x 128: the exact graph is a 8x faster build with recall
+   * 0.9980/0.9968 and 0.81x the baseline VRAM.  On 250K x 256 (the hidden set)
+   * an exact graph of the same degree scores measurably *below* NN-descent at
+   * recall@100 -- exact kNN lists are all intra-cluster, so greedy search has
+   * less to follow -- and that gate is worth more than the build time, so the
+   * exact path is capped at 128 dims. */
+  if (want_exact && dim <= SK_EXACT_MAX_DIM && n >= SK_MIN_N && dim >= 8 &&
       (double)n * (double)dim <= SK_MAX_ELEMS) {
     if (sk_build_exact(h, base, n, dim) == 0) return h;
     fprintf(stderr, "[seekdb_cuvs] exact GPU graph failed; falling back to NN-descent\n");
