@@ -1,1 +1,1 @@
-cd /workspace/w && hipcc -O2 -fopenmp -I. bridge_selftest.cpp -L/workspace/w -lseekdb_cuvs_bridge -Wl,-rpath,/workspace/w -o bridge_selftest 2>&1 | grep -E 'error' | head -5; ./bridge_selftest sift_base.fvecs 250000 128 2048 100 sift_query.fvecs 2>&1 | tail -25 # t26-test128
+cd /workspace/w && ./bridge_selftest sift_base.fvecs 250000 128 500 20 sift_query.fvecs 2>&1 | tail -12; echo '=== NN ==='; SEEKDB_CUVS_EXACT=0 SEEKDB_CUVS_NITER=20 ./bridge_selftest sift_base.fvecs 250000 128 2048 20 sift_query.fvecs 2>&1 | tail -12 # t27-ladder
