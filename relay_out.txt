@@ -1,12 +1,12 @@
-$ cd /workspace/w && hipcc -O2 -fopenmp -I. bridge_selftest.cpp ./libseekdb_cuvs_bridge.so -Wl,-rpath,/workspace/w -o bridge_selftest 2>&1 | grep -E 'error' | head -5; ls -la bridge_selftest 2>/dev/null; ./bridge_selftest sift_base.fvecs 250000 128 2048 100 sift_query.fvecs 2>&1 | tail -25 # t25-test128
+$ cd /workspace/w && hipcc -O2 -fopenmp -I. bridge_selftest.cpp -L/workspace/w -lseekdb_cuvs_bridge -Wl,-rpath,/workspace/w -o bridge_selftest 2>&1 | grep -E 'error' | head -5; ./bridge_selftest sift_base.fvecs 250000 128 2048 100 sift_query.fvecs 2>&1 | tail -25 # t26-test128
 [rc=0]
 --- stdout ---
-./libseekdb_cuvs_bridge.so:1:1: error: expected unqualified-id
-./libseekdb_cuvs_bridge.so:1:41: error: source file is not valid UTF-8
-./libseekdb_cuvs_bridge.so:1:97: error: source file is not valid UTF-8
-./libseekdb_cuvs_bridge.so:1:105: error: source file is not valid UTF-8
-./libseekdb_cuvs_bridge.so:1:154: error: source file is not valid UTF-8
-/bin/sh: 1: ./bridge_selftest: not found
+[  1967][10:12:55:404373][warning] Self-included ratio is low: 3.99 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
+CFG n=250000 dim=128 nq=2048 nq_recall=100 vram_idle_mb=28028928
+BUILD_MS=3739 VRAM_PEAK_MB=840454144 VRAM_DELTA_MB=812425216
+SEARCH10 topk=10 first_ms=18.40 batch_ms=3 QPS=780460.1
+[seekdb_cuvs] search rc=15: (null)
 
 --- stderr ---
+Segmentation fault (core dumped)
 
