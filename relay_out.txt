@@ -1,23 +1,10 @@
-$ cd /workspace/w && LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 2048 50 sift_query.fvecs 2>&1 | tail -10; echo '=== BASE-VRAM-NND50 ==='; LD_LIBRARY_PATH=/seekdb_workspace/bridge SEEKDB_CUVS_NITER=50 ./bridge_selftest sift_base.fvecs 250000 128 1 1 sift_query.fvecs 2>&1 | tail -8 # t31-qps-base
+$ cd /workspace/w && python3 -c 'import numpy as np; a=np.fromfile("sift_base.fvecs",dtype=np.int32).reshape(-1,129); v=a[:,1:].astype(np.float32)[:250000]; m=len(v); w=np.concatenate([v,np.roll(v,m//2,axis=0)],axis=1); o=np.zeros((m,257),dtype=np.float32); o[:,0]=256; o[:,1:]=w; o.tofile("sift256.fvecs"); q=np.fromfile("sift_query.fvecs",dtype=np.int32).reshape(-1,129)[:,1:].astype(np.float32); qw=np.concatenate([q,np.roll(q,len(q)//2,axis=0)],axis=1); qo=np.zeros((len(q),257),dtype=np.float32); qo[:,0]=256; qo[:,1:]=qw; qo.tofile("sift256_query.fvecs"); print("gen ok")' && ls -la sift256.fvecs sift256_query.fvecs && LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift256.fvecs 250000 256 2048 50 sift256_query.fvecs 2>&1 | tail -12 # t32-test256
 [rc=0]
 --- stdout ---
-CFG n=250000 dim=128 nq=2048 nq_recall=50 vram_idle_mb=28028928
-BUILD_MS=3128 VRAM_PEAK_MB=709668864 VRAM_DELTA_MB=681639936
-SEARCH10 topk=10 first_ms=29.23 batch_ms=53 QPS=38369.6
-SEARCH100 topk=100 first_ms=3.20 batch_ms=53 QPS=38519.5
-RECALL@10=0.9980 (499/500)
-RECALL@100=0.9958 (4979/5000)
-DESERIALIZE_MS=56
-SEARCH10_AFTER_LOAD topk=10 first_ms=3.41 batch_ms=53 QPS=38671.4
-IDS_MATCH_AFTER_LOAD=1.0000 (20480/20480)
-DONE
-=== BASE-VRAM-NND50 ===
-[  3714][10:22:42:076314][warning] Self-included ratio is low: 4.41 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
-CFG n=250000 dim=128 nq=1 nq_recall=1 vram_idle_mb=28028928
-BUILD_MS=3839 VRAM_PEAK_MB=840507392 VRAM_DELTA_MB=812478464
-SEARCH10 topk=10 first_ms=16.72 batch_ms=0 QPS=2488.1
-[seekdb_cuvs] search rc=15: (null)
+gen ok
+-rw-r--r-- 1 root root 257000000 Nov 11 10:25 sift256.fvecs
+-rw-r--r-- 1 root root  10280000 Nov 11 10:25 sift256_query.fvecs
+bad dim 1132462080 at row 0
 
 --- stderr ---
-Segmentation fault (core dumped)
 
