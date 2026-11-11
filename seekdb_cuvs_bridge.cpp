@@ -47,7 +47,16 @@
  * seekdb_cuvs_build(). */
 #define SK_DEG 64          /* graph out-degree written into the CAGRA graph */
 #endif
+#ifndef SK_EXACT_MAX_DIM
 #define SK_EXACT_MAX_DIM 128L  /* above this, NN-descent's graph navigates better */
+#endif
+#ifndef SK_RAND
+/* Long-range links appended to every exact neighbour list.  Exact kNN lists are
+ * all intra-cluster, which starves greedy search of cross-cluster moves; a few
+ * pseudo-random edges per row restore that at zero build cost and zero extra
+ * memory (degree is unchanged). */
+#define SK_RAND 0
+#endif
 #define SK_CT 32           /* dataset columns staged per shared-memory tile */
 #define SK_DC 16           /* dims accumulated per inner step */
 #define SK_THREADS 256     /* threads per block == rows per block */
@@ -142,6 +151,14 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
   }
 
   if (row < n) {
+#if SK_RAND > 0
+    /* deterministic pseudo-random long-range links in the tail slots */
+    for (int t = SK_DEG - SK_RAND; t < SK_DEG; t++) {
+      unsigned int h = (unsigned int)(row * 2654435761u + (unsigned int)t * 97u + 12345u);
+      li[t] = h % (unsigned int)n;
+      lv[t] = 3.4e38f;
+    }
+#endif
     unsigned int* pib = pid + (size_t)row * SK_DEG;
     /* pval == NULL means "this is the only pass, write the final graph": the
      * distances are register state and are dead once the ids are stored. */
