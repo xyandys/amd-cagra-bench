@@ -1,1 +1,1 @@
-cd /workspace/w && sed -i 's/\r$//' build.sh seekdb_cuvs_bridge.cpp seekdb_cuvs_bridge.h bridge_selftest.cpp && ./build.sh 2>&1 | tail -40; ls -la /workspace/w; tail -2 /workspace/w/dl.log # t23-build2
+cd /workspace/w && hipcc -O2 -fopenmp -D__HIP_PLATFORM_AMD__ -I/opt/hipvs/include -I/opt/rocm/include -I. bridge_selftest.cpp ./libseekdb_cuvs_bridge.so -Wl,-rpath,/workspace/w -o bridge_selftest 2>&1 | tail -5; ./bridge_selftest sift_base.fvecs 250000 128 2048 100 sift_query.fvecs 2>&1 | tail -30 # t24-test128
