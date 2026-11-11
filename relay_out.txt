@@ -1,17 +1,58 @@
-$ cd /workspace/w; (nohup curl -sL --retry 3 -o sift_base.fvecs 'https://hf-mirror.com/datasets/qbo-odp/sift1m/resolve/main/sift_base.fvecs' > /workspace/w/dl.log 2>&1 &); (nohup curl -sL --retry 3 -o sift_query.fvecs 'https://hf-mirror.com/datasets/qbo-odp/sift1m/resolve/main/sift_query.fvecs' > /workspace/w/dlq.log 2>&1 &); ./build.sh 2>&1 | tail -40; ls -la /workspace/w # t22-build
+$ cd /workspace/w && sed -i 's/\r$//' build.sh seekdb_cuvs_bridge.cpp seekdb_cuvs_bridge.h bridge_selftest.cpp && ./build.sh 2>&1 | tail -40; ls -la /workspace/w; tail -2 /workspace/w/dl.log # t23-build2
 [rc=0]
 --- stdout ---
-/usr/bin/env: ‘bash\r’: No such file or directory
-/usr/bin/env: use -[v]S to pass options in shebang lines
-total 52
-drwxr-xr-x  2 root root  4096 Nov 11 10:04 .
-drwxr-x--- 16 root root  4096 Nov 11 10:04 ..
--rw-r--r--  1 root root  8446 Nov 11 10:04 bridge_selftest.cpp
--rwxr-xr-x  1 root root   989 Nov 11 10:04 build.sh
--rw-r--r--  1 root root     0 Nov 11 10:04 dl.log
--rw-r--r--  1 root root     0 Nov 11 10:04 dlq.log
--rw-r--r--  1 root root 24100 Nov 11 10:04 seekdb_cuvs_bridge.cpp
--rw-r--r--  1 root root  1602 Nov 11 10:04 seekdb_cuvs_bridge.h
+  233 | #define cudaFree hipFree
+      |                  ^
+/workspace/w/seekdb_cuvs_bridge.cpp:226:19: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  226 |   if (s->ds)    { cudaFree(s->ds);    s->ds = 0; }
+      |                   ^~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+/workspace/w/seekdb_cuvs_bridge.cpp:423:19: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  423 |     if (out_dist) cudaMemcpy(out_dist, dd, sizeof(float)*nq*topk, cudaMemcpyDefault);
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:293:20: note: expanded from macro 'cudaMemcpy'
+  293 | #define cudaMemcpy hipMemcpy
+      |                    ^
+/workspace/w/seekdb_cuvs_bridge.cpp:441:21: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  441 |   if (h->graph_dev) cudaFree(h->graph_dev);
+      |                     ^~~~~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+/workspace/w/seekdb_cuvs_bridge.cpp:442:18: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  442 |   if (h->ds_dev) cudaFree(h->ds_dev);
+      |                  ^~~~~~~~~~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+/workspace/w/seekdb_cuvs_bridge.cpp:626:10: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  626 |   if (g) cudaFree(g);
+      |          ^~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+/workspace/w/seekdb_cuvs_bridge.cpp:627:10: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  627 |   if (d) cudaFree(d);
+      |          ^~~~~~~~~~~
+/opt/hipvs/include/cuvs/cuda_runtime.h:233:18: note: expanded from macro 'cudaFree'
+  233 | #define cudaFree hipFree
+      |                  ^
+10 warnings generated when compiling for host.
+built /workspace/w/libseekdb_cuvs_bridge.so
+total 509204
+drwxr-xr-x  2 root root      4096 Nov 11 10:06 .
+drwxr-x--- 16 root root      4096 Nov 11 10:04 ..
+-rw-r--r--  1 root root      8446 Nov 11 10:06 bridge_selftest.cpp
+-rwxr-xr-x  1 root root       951 Nov 11 10:06 build.sh
+-rw-r--r--  1 root root         0 Nov 11 10:04 dl.log
+-rw-r--r--  1 root root         0 Nov 11 10:04 dlq.log
+-rwxr-xr-x  1 root root    202352 Nov 11 10:06 libseekdb_cuvs_bridge.so
+-rw-r--r--  1 root root     24100 Nov 11 10:06 seekdb_cuvs_bridge.cpp
+-rw-r--r--  1 root root      1571 Nov 11 10:06 seekdb_cuvs_bridge.h
+-rw-r--r--  1 root root 516000000 Nov 11 10:04 sift_base.fvecs
+-rw-r--r--  1 root root   5160000 Nov 11 10:04 sift_query.fvecs
 
 --- stderr ---
 
