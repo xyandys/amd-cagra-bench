@@ -1,7 +1,20 @@
-$ cd /workspace/w && T=$(cat /workspace/.ght) && curl -sS -H "Authorization: bearer $T" 'https://api.github.com/repos/xyandys/amd-cagra-bench/contents/nn_baseline_bridge.c?ref=main' -o nb.json && python3 -c "import json,base64;d=json.load(open('nb.json'));open('nn_baseline_bridge.c','wb').write(base64.b64decode(d['content']))" && sed -i 's/\r$//' nn_baseline_bridge.c && mkdir -p base && hipcc -shared -fPIC -O2 -D__HIP_PLATFORM_AMD__ -fopenmp -I/opt/hipvs/include -I/opt/rocm/include nn_baseline_bridge.c -L/opt/hipvs/lib -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -lcuvs_c -o base/libseekdb_cuvs_bridge.so 2>&1 | grep -E ' error' | head -5; ls -la base/libseekdb_cuvs_bridge.so # t39-build-nn
+$ cd /workspace/w && echo '== NN 128d niter15 ==' && LD_LIBRARY_PATH=/workspace/w/base SEEKDB_CUVS_NITER=15 ./bridge_selftest sift_base.fvecs 250000 128 1 1 sift_query.fvecs 2>&1 | tail -6; echo '== NN 256d niter50 ==' && LD_LIBRARY_PATH=/workspace/w/base SEEKDB_CUVS_NITER=50 ./bridge_selftest sift256.fvecs 250000 256 1 1 sift256_query.fvecs 2>&1 | tail -6 # t40-nn-vram
 [rc=0]
 --- stdout ---
--rwxr-xr-x 1 root root 12104 Nov 11 10:46 base/libseekdb_cuvs_bridge.so
+== NN 128d niter15 ==
+RECALL@10=1.0000 (10/10)
+RECALL@100=1.0000 (100/100)
+DESERIALIZE_MS=159
+SEARCH10_AFTER_LOAD topk=10 first_ms=3.13 batch_ms=3 QPS=361.7
+IDS_MATCH_AFTER_LOAD=1.0000 (10/10)
+DONE
+== NN 256d niter50 ==
+RECALL@10=0.3000 (3/10)
+RECALL@100=0.5000 (50/100)
+DESERIALIZE_MS=242
+SEARCH10_AFTER_LOAD topk=10 first_ms=3.86 batch_ms=3 QPS=288.8
+IDS_MATCH_AFTER_LOAD=1.0000 (10/10)
+DONE
 
 --- stderr ---
 
