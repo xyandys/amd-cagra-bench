@@ -422,7 +422,11 @@ int seekdb_cuvs_search(void* handle, const float* query, long nq, long topk,
       if (ito_v > 0) required_itopk = (size_t)ito_v;
       if (ito_v <= 0 && required_itopk < 512) required_itopk = 512;
       if (sp->itopk_size < required_itopk) sp->itopk_size = required_itopk;
-      sp->search_width = 4;
+      {
+        const char* wd = getenv("SEEKDB_CUVS_WIDTH");
+        long wv = (wd && *wd) ? strtol(wd, NULL, 10) : 0;
+        sp->search_width = (wv > 0 && wv <= 64) ? (unsigned)wv : 4;
+      }
     }
     cuvsFilter f; f.type=NO_FILTER; f.addr=(uintptr_t)0;
     if (cuvsCagraSearch(h->res, sp, h->idx, &qt, &nt, &dt, f) != CUVS_SUCCESS) { rc=15; goto done; }
