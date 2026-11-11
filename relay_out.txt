@@ -1,18 +1,20 @@
-$ cd /workspace/w && SEEKDB_CUVS_ITOPK=1024 LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift256.fvecs 250000 256 2048 50 sift256_query.fvecs 2>&1 | tail -9; echo '=== BASE256-VRAM ==='; LD_LIBRARY_PATH=/seekdb_workspace/bridge SEEKDB_CUVS_NITER=50 ./bridge_selftest sift256.fvecs 250000 256 1 1 sift256_query.fvecs 2>&1 | tail -6 # t34-itopk-base256
+$ ls /seekdb_workspace/ 2>/dev/null; echo '--- bridge dir ---'; ls -la /seekdb_workspace/bridge/ 2>/dev/null; echo '--- top bins ---'; ls /seekdb_workspace/*/bin 2>/dev/null | head -20; echo '--- files ---'; find /seekdb_workspace -maxdepth 2 -name '*.sh' -o -maxdepth 2 -name '*.py' -o -maxdepth 2 -name '*.json' 2>/dev/null | head -20 # t35-explore
 [rc=0]
 --- stdout ---
-CFG n=250000 dim=256 nq=2048 nq_recall=50 vram_idle_mb=28028928
-BUILD_MS=6570 VRAM_PEAK_MB=837849088 VRAM_DELTA_MB=809820160
-[seekdb_cuvs] search rc=15: (null)
-[seekdb_cuvs] search rc=15: (null)
-=== BASE256-VRAM ===
-[  5010][10:34:27:112645][warning] Self-included ratio is low: 0.05 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
-CFG n=250000 dim=256 nq=1 nq_recall=1 vram_idle_mb=28028928
-BUILD_MS=4152 VRAM_PEAK_MB=998334464 VRAM_DELTA_MB=970305536
-SEARCH10 topk=10 first_ms=17.00 batch_ms=0 QPS=2119.5
-[seekdb_cuvs] search rc=15: (null)
+bin
+bridge
+datasets
+scripts
+--- bridge dir ---
+total 20
+drwxr-xr-x 1 root root 4096 Sep 15 02:45 .
+drwxr-xr-x 1 root root 4096 Aug 18 10:01 ..
+-rwxr-xr-x 1 root root 9960 Sep 15 02:45 libseekdb_cuvs_bridge.so
+--- top bins ---
+--- files ---
+/seekdb_workspace/scripts/start_observer.sh
+/seekdb_workspace/scripts/entrypoint.sh
+/seekdb_workspace/scripts/entrypoint-latest.sh
 
 --- stderr ---
-Segmentation fault (core dumped)
-Segmentation fault (core dumped)
 
