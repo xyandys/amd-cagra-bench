@@ -1,16 +1,16 @@
-$ cd /workspace/w && ./bridge_selftest sift_base.fvecs 250000 128 500 20 sift_query.fvecs 2>&1 | tail -12; echo '=== NN ==='; SEEKDB_CUVS_EXACT=0 SEEKDB_CUVS_NITER=20 ./bridge_selftest sift_base.fvecs 250000 128 2048 20 sift_query.fvecs 2>&1 | tail -12 # t27-ladder
+$ cd /workspace/w && ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -8; echo '=== NND niter1 ==='; SEEKDB_CUVS_EXACT=0 SEEKDB_CUVS_NITER=1 ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -8 # t28-nq8
 [rc=0]
 --- stdout ---
-[  2223][10:15:53:800149][warning] Self-included ratio is low: 4.10 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
-CFG n=250000 dim=128 nq=500 nq_recall=20 vram_idle_mb=28028928
-BUILD_MS=4091 VRAM_PEAK_MB=855560192 VRAM_DELTA_MB=827531264
-SEARCH10 topk=10 first_ms=29.74 batch_ms=2 QPS=324773.2
+[  2714][10:18:57:585003][warning] Self-included ratio is low: 4.10 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
+CFG n=250000 dim=128 nq=8 nq_recall=4 vram_idle_mb=28028928
+BUILD_MS=3837 VRAM_PEAK_MB=840560640 VRAM_DELTA_MB=812531712
+SEARCH10 topk=10 first_ms=18.03 batch_ms=0 QPS=17142.4
 [seekdb_cuvs] search rc=15: (null)
-=== NN ===
-[  2462][10:15:58:868730][warning] Self-included ratio is low: 4.10 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
-CFG n=250000 dim=128 nq=2048 nq_recall=20 vram_idle_mb=28028928
-BUILD_MS=3831 VRAM_PEAK_MB=840519680 VRAM_DELTA_MB=812490752
-SEARCH10 topk=10 first_ms=17.51 batch_ms=3 QPS=795388.3
+=== NND niter1 ===
+[  2949][10:19:02:288891][warning] Self-included ratio is low: 3.99 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
+CFG n=250000 dim=128 nq=8 nq_recall=4 vram_idle_mb=28028928
+BUILD_MS=3632 VRAM_PEAK_MB=840556544 VRAM_DELTA_MB=812527616
+SEARCH10 topk=10 first_ms=17.23 batch_ms=0 QPS=17154.2
 [seekdb_cuvs] search rc=15: (null)
 
 --- stderr ---
