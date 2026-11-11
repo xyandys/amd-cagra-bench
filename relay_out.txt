@@ -1,16 +1,7 @@
-$ cd /workspace/w && LD_LIBRARY_PATH=/workspace/w/d96 ./bridge_selftest sift256.fvecs 250000 256 2048 50 sift256_query.fvecs 2>&1 | tail -10 # t38-deg96-256
+$ cd /workspace/w && T=$(cat /workspace/.ght) && curl -sS -H "Authorization: bearer $T" 'https://api.github.com/repos/xyandys/amd-cagra-bench/contents/nn_baseline_bridge.c?ref=main' -o nb.json && python3 -c "import json,base64;d=json.load(open('nb.json'));open('nn_baseline_bridge.c','wb').write(base64.b64decode(d['content']))" && sed -i 's/\r$//' nn_baseline_bridge.c && mkdir -p base && hipcc -shared -fPIC -O2 -D__HIP_PLATFORM_AMD__ -fopenmp -I/opt/hipvs/include -I/opt/rocm/include nn_baseline_bridge.c -L/opt/hipvs/lib -Wl,-rpath,/opt/hipvs/lib:/opt/rocm/lib -lcuvs_c -o base/libseekdb_cuvs_bridge.so 2>&1 | grep -E ' error' | head -5; ls -la base/libseekdb_cuvs_bridge.so # t39-build-nn
 [rc=0]
 --- stdout ---
-CFG n=250000 dim=256 nq=2048 nq_recall=50 vram_idle_mb=28028928
-BUILD_MS=7281 VRAM_PEAK_MB=988925952 VRAM_DELTA_MB=960897024
-SEARCH10 topk=10 first_ms=29.30 batch_ms=77 QPS=26463.3
-SEARCH100 topk=100 first_ms=2.86 batch_ms=77 QPS=26629.5
-RECALL@10=0.9860 (493/500)
-RECALL@100=0.9816 (4908/5000)
-DESERIALIZE_MS=98
-SEARCH10_AFTER_LOAD topk=10 first_ms=3.17 batch_ms=79 QPS=26010.3
-IDS_MATCH_AFTER_LOAD=1.0000 (20480/20480)
-DONE
+-rwxr-xr-x 1 root root 12104 Nov 11 10:46 base/libseekdb_cuvs_bridge.so
 
 --- stderr ---
 
