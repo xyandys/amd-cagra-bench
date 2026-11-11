@@ -304,6 +304,14 @@ static int sk_build_exact(sk_cuvs_index* h, const float* base, long n, long dim)
   SK_CUCK(cudaGetLastError());
   SK_CUCK(cudaDeviceSynchronize());
 
+  /* The scratch slabs are dead the moment the graph is final, and cuvS copies
+   * dataset+graph into its own storage inside IndexFromArgs.  Releasing them
+   * first keeps the build-time peak at ds+graph instead of ds+graph+3 scratch,
+   * which is what the memory gate measures. */
+  if (s.vals) { cudaFree(s.vals); s.vals = 0; }
+  if (s.pid) { cudaFree(s.pid); s.pid = 0; }
+  if (s.pval) { cudaFree(s.pval); s.pval = 0; }
+
   if (sk_from_args(h, s.graph, s.ds, n, dim) != 0) goto fail;
 
   h->ds_dev = (unsigned int*)s.ds;
