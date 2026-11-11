@@ -1,19 +1,16 @@
-$ cd /workspace/w && ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -8; echo '=== NND niter1 ==='; SEEKDB_CUVS_EXACT=0 SEEKDB_CUVS_NITER=1 ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -8 # t28-nq8
+$ cd /workspace/w && ldd ./bridge_selftest | grep -i bridge; echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH; ls -la /opt/hipvs/lib/ 2>/dev/null | head -10 # t29-ldd
 [rc=0]
 --- stdout ---
-[  2714][10:18:57:585003][warning] Self-included ratio is low: 4.10 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
-CFG n=250000 dim=128 nq=8 nq_recall=4 vram_idle_mb=28028928
-BUILD_MS=3837 VRAM_PEAK_MB=840560640 VRAM_DELTA_MB=812531712
-SEARCH10 topk=10 first_ms=18.03 batch_ms=0 QPS=17142.4
-[seekdb_cuvs] search rc=15: (null)
-=== NND niter1 ===
-[  2949][10:19:02:288891][warning] Self-included ratio is low: 3.99 %. This can lead to poor recall. Consider using a different configuration for the IVF-PQ index, increasing the refinement rate, or using higher-precision data type for LUT/Internal Distance.
-CFG n=250000 dim=128 nq=8 nq_recall=4 vram_idle_mb=28028928
-BUILD_MS=3632 VRAM_PEAK_MB=840556544 VRAM_DELTA_MB=812527616
-SEARCH10 topk=10 first_ms=17.23 batch_ms=0 QPS=17154.2
-[seekdb_cuvs] search rc=15: (null)
+	libseekdb_cuvs_bridge.so => /seekdb_workspace/bridge/libseekdb_cuvs_bridge.so (0x00007e856a2a2000)
+LD_LIBRARY_PATH=/seekdb_workspace/bridge:/opt/hipvs/lib:/opt/rocm/lib
+total 447444
+drwxr-xr-x 1 root root      4096 Sep 15 02:45 .
+drwxr-xr-x 1 root root      4096 Aug 17 08:08 ..
+drwxr-xr-x 4 root root      4096 Aug 13 10:11 cmake
+-rw-r--r-- 1 root root 456132800 Sep 15 02:45 libcuvs.so
+-rw-r--r-- 1 root root   1143408 Sep 15 02:45 libcuvs_c.so
+-rwxr-xr-x 1 root root    814496 Sep 15 02:45 librapids_logger.so
+-rwxr-xr-x 1 root root     65136 Sep 15 02:45 librmm.so
 
 --- stderr ---
-Segmentation fault (core dumped)
-Segmentation fault (core dumped)
 
