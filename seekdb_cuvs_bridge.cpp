@@ -45,17 +45,17 @@
  * baseline) and keeps the candidate set entirely in registers, so the sweep
  * never spills.  The exact path is only taken for dim <= SK_EXACT_MAX_DIM; see
  * seekdb_cuvs_build(). */
-#define SK_DEG 64          /* graph out-degree written into the CAGRA graph */
+#define SK_DEG 128         /* graph out-degree written into the CAGRA graph */
 #endif
 #ifndef SK_EXACT_MAX_DIM
-#define SK_EXACT_MAX_DIM 128L  /* above this, NN-descent's graph navigates better */
+#define SK_EXACT_MAX_DIM 4096L
 #endif
 #ifndef SK_RAND
 /* Long-range links appended to every exact neighbour list.  Exact kNN lists are
  * all intra-cluster, which starves greedy search of cross-cluster moves; a few
  * pseudo-random edges per row restore that at zero build cost and zero extra
  * memory (degree is unchanged). */
-#define SK_RAND 0
+#define SK_RAND 16
 #endif
 #define SK_CT 32           /* dataset columns staged per shared-memory tile */
 #define SK_DC 16           /* dims accumulated per inner step */
