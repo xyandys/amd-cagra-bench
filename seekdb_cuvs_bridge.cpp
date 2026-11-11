@@ -137,9 +137,11 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
 
   if (row < n) {
     unsigned int* pib = pid + (size_t)row * SK_DEG;
-    float* pvb = pval + (size_t)row * SK_DEG;
+    /* pval == NULL means "this is the only pass, write the final graph": the
+     * distances are register state and are dead once the ids are stored. */
+    float* pvb = pval ? (pval + (size_t)row * SK_DEG) : NULL;
 #pragma unroll
-    for (int t = 0; t < SK_DEG; t++) { pib[t] = li[t]; pvb[t] = lv[t]; }
+    for (int t = 0; t < SK_DEG; t++) { pib[t] = li[t]; if (pvb) pvb[t] = lv[t]; }
   }
 }
 
@@ -266,24 +268,22 @@ static int sk_from_args(sk_cuvs_index* h, void* graph_dev, void* ds_dev, long n,
   return 0;
 }
 
-/* Exact GPU build.  On success the handle owns ds/graph and h->idx is live. */
+/* Exact GPU build.  On success the handle owns ds/graph and h->idx is live.
+ *
+ * Single sweep: every thread owns one row for the whole dataset, so its
+ * register top-K is already final when the loop ends -- it writes the graph
+ * directly and the per-band partials / merge kernel / value slab are gone.
+ * Peak device memory is therefore ds + graph = (dim + DEG) * n * 4 bytes,
+ * which is what the 1.25x VRAM gate measures. */
 static int sk_build_exact(sk_cuvs_index* h, const float* base, long n, long dim)
 {
   sk_scratch s;
-  long band, cband;
-  const char* cb = getenv("SEEKDB_CUVS_CBAND");
   dim3 grid, mgrid;
 
   memset(&s, 0, sizeof(s));
-  cband = (cb && *cb) ? strtol(cb, NULL, 10) : SK_WIDE_BAND;
-  if (cband < 4096) cband = 4096;
-  if (cband > n) cband = n;
 
   SK_CUCK(cudaMalloc((void**)&s.ds, sizeof(float) * (size_t)n * (size_t)dim));
   SK_CUCK(cudaMalloc((void**)&s.graph, sizeof(unsigned int) * (size_t)n * SK_DEG));
-  SK_CUCK(cudaMalloc((void**)&s.vals, sizeof(float) * (size_t)n * SK_DEG));
-  SK_CUCK(cudaMalloc((void**)&s.pid, sizeof(unsigned int) * (size_t)n * SK_DEG));
-  SK_CUCK(cudaMalloc((void**)&s.pval, sizeof(float) * (size_t)n * SK_DEG));
   SK_CUCK(cudaMemcpy(s.ds, base, sizeof(float) * (size_t)n * (size_t)dim, cudaMemcpyDefault));
 
   if (cuvsCagraIndexCreate(&h->idx) != CUVS_SUCCESS) {
@@ -293,24 +293,11 @@ static int sk_build_exact(sk_cuvs_index* h, const float* base, long n, long dim)
 
   grid = dim3((unsigned)((n + SK_THREADS - 1) / SK_THREADS));
   mgrid = dim3((unsigned)((n + 255) / 256));
-  for (band = 0; band < n; band += cband) {
-    long bandn = band + cband < n ? band + cband : n;
-    sk_dist_topk<<<grid, SK_THREADS>>>(s.ds, n, dim, band, bandn, s.pid, s.pval);
-    SK_CUCK(cudaGetLastError());
-    sk_merge_into<<<mgrid, 256>>>(s.pid, s.pval, n, band == 0, s.graph, s.vals);
-    SK_CUCK(cudaGetLastError());
-  }
+  sk_dist_topk<<<grid, SK_THREADS>>>(s.ds, n, dim, 0, n, s.graph, NULL);
+  SK_CUCK(cudaGetLastError());
   sk_finalize<<<mgrid, 256>>>(s.graph, n, s.graph);
   SK_CUCK(cudaGetLastError());
   SK_CUCK(cudaDeviceSynchronize());
-
-  /* The scratch slabs are dead the moment the graph is final, and cuvS copies
-   * dataset+graph into its own storage inside IndexFromArgs.  Releasing them
-   * first keeps the build-time peak at ds+graph instead of ds+graph+3 scratch,
-   * which is what the memory gate measures. */
-  if (s.vals) { cudaFree(s.vals); s.vals = 0; }
-  if (s.pid) { cudaFree(s.pid); s.pid = 0; }
-  if (s.pval) { cudaFree(s.pval); s.pval = 0; }
 
   if (sk_from_args(h, s.graph, s.ds, n, dim) != 0) goto fail;
 
