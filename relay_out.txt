@@ -1,16 +1,17 @@
-$ cd /workspace/w && ldd ./bridge_selftest | grep -i bridge; echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH; ls -la /opt/hipvs/lib/ 2>/dev/null | head -10 # t29-ldd
+$ cd /workspace/w && LD_LIBRARY_PATH=/workspace/w ldd ./bridge_selftest | grep -i bridge; LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 8 4 sift_query.fvecs 2>&1 | tail -10 # t30-nq8-ours
 [rc=0]
 --- stdout ---
-	libseekdb_cuvs_bridge.so => /seekdb_workspace/bridge/libseekdb_cuvs_bridge.so (0x00007e856a2a2000)
-LD_LIBRARY_PATH=/seekdb_workspace/bridge:/opt/hipvs/lib:/opt/rocm/lib
-total 447444
-drwxr-xr-x 1 root root      4096 Sep 15 02:45 .
-drwxr-xr-x 1 root root      4096 Aug 17 08:08 ..
-drwxr-xr-x 4 root root      4096 Aug 13 10:11 cmake
--rw-r--r-- 1 root root 456132800 Sep 15 02:45 libcuvs.so
--rw-r--r-- 1 root root   1143408 Sep 15 02:45 libcuvs_c.so
--rwxr-xr-x 1 root root    814496 Sep 15 02:45 librapids_logger.so
--rwxr-xr-x 1 root root     65136 Sep 15 02:45 librmm.so
+	libseekdb_cuvs_bridge.so => /workspace/w/libseekdb_cuvs_bridge.so (0x00007dc100343000)
+CFG n=250000 dim=128 nq=8 nq_recall=4 vram_idle_mb=28028928
+BUILD_MS=3157 VRAM_PEAK_MB=709668864 VRAM_DELTA_MB=681639936
+SEARCH10 topk=10 first_ms=28.52 batch_ms=4 QPS=2139.4
+SEARCH100 topk=100 first_ms=3.07 batch_ms=4 QPS=2224.2
+RECALL@10=1.0000 (40/40)
+RECALL@100=0.9875 (395/400)
+DESERIALIZE_MS=91
+SEARCH10_AFTER_LOAD topk=10 first_ms=3.41 batch_ms=4 QPS=2192.7
+IDS_MATCH_AFTER_LOAD=1.0000 (80/80)
+DONE
 
 --- stderr ---
 
