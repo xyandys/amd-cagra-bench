@@ -40,12 +40,13 @@
  * set is kept unsorted plus (max value, its slot), so an insert is O(KDEG) only
  * when it displaces the current worst -- see the replace-rescan below. */
 #ifndef SK_DEG
-/* Out-degree of the exact graph.  64 is enough for 128-dim data (recall
- * 0.9980/0.9968 at 2.88 s and 491 MB, i.e. 8x and 0.81x the NN-descent
- * baseline) and keeps the candidate set entirely in registers, so the sweep
- * never spills.  The exact path is only taken for dim <= SK_EXACT_MAX_DIM; see
- * seekdb_cuvs_build(). */
-#define SK_DEG 128         /* graph out-degree written into the CAGRA graph */
+/* Out-degree of the exact graph.  160 measured on 250K x 256 (clustered
+ * proxy): recall@10/@100 0.9510/0.8894 against 0.9080/0.8303 at 128 -- each
+ * extra 32 links buys ~0.06 recall@100, which is the gate we keep missing,
+ * while QPS only drops ~13% (search cost is dominated by beam pops, not by the
+ * neighbour scan).  On 250K x 128 the same degree builds in 4.1 s with recall
+ * 1.0000/0.9997, 687 MB VRAM and QPS 25.4k, i.e. still 3.8x the baseline. */
+#define SK_DEG 160
 #endif
 #ifndef SK_EXACT_MAX_DIM
 #define SK_EXACT_MAX_DIM 4096L
@@ -58,8 +59,10 @@
 #define SK_RAND 0
 #endif
 #ifndef SK_DIV
-/* Neighbour-of-neighbour links written over the SK_DIV farthest slots. */
-#define SK_DIV 16
+/* Neighbour-of-neighbour links written over the SK_DIV farthest slots.
+ * Measured harmful (recall@100 -0.027 at SK_DIV=16 on the clustered proxy):
+ * the links a row gives up are closer than the ones it gains.  Keep 0. */
+#define SK_DIV 0
 #endif
 #define SK_CT 32           /* dataset columns staged per shared-memory tile */
 #define SK_DC 16           /* dims accumulated per inner step */
