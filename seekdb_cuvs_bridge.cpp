@@ -145,8 +145,10 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
 
   for (long tile = band0; tile < bandn; tile += SK_CT) {
     float acc[SK_CT];
+    bool dead[SK_CT];
+    bool alldead = false;
 #pragma unroll
-    for (int c = 0; c < SK_CT; c++) acc[c] = 0.f;
+    for (int c = 0; c < SK_CT; c++) { acc[c] = 0.f; dead[c] = false; }
 
     for (long d0 = 0; d0 < dim; d0 += SK_DC) {
       for (int i = tx; i < SK_CT * SK_DC; i += SK_THREADS) {
@@ -156,17 +158,31 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
         bt[c][d] = (col < n && dd < dim) ? base[col * dim + dd] : 0.f;
       }
       __syncthreads();
-      float qv[SK_DC];
+      if (!alldead) {
+        float qv[SK_DC];
 #pragma unroll
-      for (int d = 0; d < SK_DC; d++)
-        qv[d] = (row < n && d0 + d < dim) ? base[row * dim + d0 + d] : 0.f;
+        for (int d = 0; d < SK_DC; d++)
+          qv[d] = (row < n && d0 + d < dim) ? base[row * dim + d0 + d] : 0.f;
 #pragma unroll
-      for (int c = 0; c < SK_CT; c++)
+        for (int c = 0; c < SK_CT; c++) {
+          if (dead[c]) continue;
 #pragma unroll
-        for (int d = 0; d < SK_DC; d++) {
-          float df = qv[d] - bt[c][d];
-          acc[c] += df * df;
+          for (int d = 0; d < SK_DC; d++) {
+            float df = qv[d] - bt[c][d];
+            acc[c] += df * df;
+          }
         }
+        /* Squared distance only grows, so a column already past the current
+         * 160th-best cannot enter the list: stop paying for it.  On high-dim
+         * clustered data most columns die in the first few chunks, which is
+         * where the build time of the hidden set goes. */
+        alldead = true;
+#pragma unroll
+        for (int c = 0; c < SK_CT; c++) {
+          if (dead[c]) continue;
+          if (acc[c] > cmax) dead[c] = true; else alldead = false;
+        }
+      }
       __syncthreads();
     }
 
