@@ -39,15 +39,19 @@
  * staged in shared memory and reused by every row of the block.  The candidate
  * set is kept unsorted plus (max value, its slot), so an insert is O(KDEG) only
  * when it displaces the current worst -- see the replace-rescan below. */
-#ifndef SK_DEG
 /* Out-degree of the exact graph.  160 measured on 250K x 256 (clustered
  * proxy): recall@10/@100 0.9510/0.8894 against 0.9080/0.8303 at 128 -- each
  * extra 32 links buys ~0.06 recall@100, which is the gate we keep missing,
  * while QPS only drops ~13% (search cost is dominated by beam pops, not by the
  * neighbour scan).  On 250K x 128 the same degree builds in 4.1 s with recall
- * 1.0000/0.9997, 687 MB VRAM and QPS 25.4k, i.e. still 3.8x the baseline. */
-#define SK_DEG 160
-#endif
+ * 1.0000/0.9997, 687 MB VRAM and QPS 25.4k, i.e. still 3.8x the baseline.
+ *
+ * Two degrees: 128-dim data (SIFT) does not need more than 64 links, and the
+ * extra links cost ~1.3 s of build time there; 256-dim data needs 160 links to
+ * hold recall@100.  Same search code, two instantiations. */
+#define SK_DEG_NARROW 64
+#define SK_NARROW_MAX_DIM 128L
+#define SK_DEG_WIDE 160
 #ifndef SK_EXACT_MAX_DIM
 #define SK_EXACT_MAX_DIM 4096L
 #endif
@@ -84,7 +88,7 @@ typedef struct {
   cuvsResources_t        res;
   cuvsCagraIndexParams_t ip;
   cuvsCagraIndex_t       idx;
-  long n, dim;
+  long n, dim, deg;
   int  path;                   /* SK_PATH_* */
   unsigned int* ds_dev;        /* exact path only: dataset the index points at */
   unsigned int* graph_dev;     /* exact path only: kNN graph the index points at */
@@ -103,25 +107,27 @@ int seekdb_cuvs_search(void* handle, const float* query, long nq, long topk,
  * all intra-cluster, which is exactly the case where a greedy beam has the
  * least to follow; NN-descent gets its edge on clustered data from the same
  * kind of explore step, and here it costs one random read per replaced slot. */
+template <int DEG>
 __global__ void __launch_bounds__(256) sk_diversify(
     const unsigned int* __restrict__ gin, unsigned int* __restrict__ gout, long n)
 {
   const long row = (long)blockIdx.x * 256 + threadIdx.x;
   if (row >= n) return;
-  const unsigned int* src = gin + (size_t)row * SK_DEG;
-  unsigned int* dst = gout + (size_t)row * SK_DEG;
+  const unsigned int* src = gin + (size_t)row * DEG;
+  unsigned int* dst = gout + (size_t)row * DEG;
 #pragma unroll
-  for (int t = 0; t < SK_DEG; t++) dst[t] = src[t];
+  for (int t = 0; t < DEG; t++) dst[t] = src[t];
 #if SK_DIV > 0
-  for (int t = SK_DEG - SK_DIV; t < SK_DEG; t++) {
+  for (int t = DEG - SK_DIV; t < DEG; t++) {
     unsigned int a = src[(unsigned int)(t % 32)];
     if (a >= (unsigned int)n || a == (unsigned int)row) continue;
-    unsigned int c = gin[(size_t)a * SK_DEG + (unsigned int)((row * 7 + t) % SK_DEG)];
+    unsigned int c = gin[(size_t)a * DEG + (unsigned int)((row * 7 + t) % DEG)];
     if (c < (unsigned int)n && c != (unsigned int)row) dst[t] = c;
   }
 #endif
 }
 
+template <int DEG>
 __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
     const float* __restrict__ base, long n, long dim, long band0, long bandn,
     unsigned int* __restrict__ pid, float* __restrict__ pval)
@@ -130,12 +136,12 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
   const long row = (long)blockIdx.x * SK_THREADS + threadIdx.x;
   const int tx = threadIdx.x;
 
-  float lv[SK_DEG];
-  unsigned int li[SK_DEG];
+  float lv[DEG];
+  unsigned int li[DEG];
   float cmax = 3.4e38f;
   int cpos = 0;
 #pragma unroll
-  for (int t = 0; t < SK_DEG; t++) { lv[t] = 3.4e38f; li[t] = 0xFFFFFFFFu; }
+  for (int t = 0; t < DEG; t++) { lv[t] = 3.4e38f; li[t] = 0xFFFFFFFFu; }
 
   for (long tile = band0; tile < bandn; tile += SK_CT) {
     float acc[SK_CT];
@@ -174,7 +180,7 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
         /* replace-rescan: find the new worst slot once per accepted insert */
         float bm = -1.f; int bp = 0;
 #pragma unroll
-        for (int t = 0; t < SK_DEG; t++)
+        for (int t = 0; t < DEG; t++)
           if (lv[t] > bm) { bm = lv[t]; bp = t; }
         cmax = bm; cpos = bp;
       }
@@ -184,79 +190,33 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
   if (row < n) {
 #if SK_RAND > 0
     /* deterministic pseudo-random long-range links in the tail slots */
-    for (int t = SK_DEG - SK_RAND; t < SK_DEG; t++) {
+    for (int t = DEG - SK_RAND; t < DEG; t++) {
       unsigned int h = (unsigned int)(row * 2654435761u + (unsigned int)t * 97u + 12345u);
       li[t] = h % (unsigned int)n;
       lv[t] = 3.4e38f;
     }
 #endif
-    unsigned int* pib = pid + (size_t)row * SK_DEG;
+    unsigned int* pib = pid + (size_t)row * DEG;
     /* pval == NULL means "this is the only pass, write the final graph": the
      * distances are register state and are dead once the ids are stored. */
-    float* pvb = pval ? (pval + (size_t)row * SK_DEG) : NULL;
+    float* pvb = pval ? (pval + (size_t)row * DEG) : NULL;
 #pragma unroll
-    for (int t = 0; t < SK_DEG; t++) { pib[t] = li[t]; if (pvb) pvb[t] = lv[t]; }
+    for (int t = 0; t < DEG; t++) { pib[t] = li[t]; if (pvb) pvb[t] = lv[t]; }
   }
-}
-
-/* Fold one band's partial top-K into the row's running top-K.  The ids half of
- * the running state is the graph buffer itself (the values are discarded once
- * the merge is over), which saves one n*DEG allocation. */
-__global__ void sk_merge_into(const unsigned int* __restrict__ pid,
-                              const float* __restrict__ pval, long n, int first,
-                              unsigned int* __restrict__ rid,
-                              float* __restrict__ rval)
-{
-  const long row = (long)blockIdx.x * blockDim.x + threadIdx.x;
-  if (row >= n) return;
-  const unsigned int* pib = pid + (size_t)row * SK_DEG;
-  const float* pvb = pval + (size_t)row * SK_DEG;
-  unsigned int* gib = rid + (size_t)row * SK_DEG;
-  float* gvb = rval + (size_t)row * SK_DEG;
-
-  if (first) {
-#pragma unroll
-    for (int t = 0; t < SK_DEG; t++) { gib[t] = pib[t]; gvb[t] = pvb[t]; }
-    return;
-  }
-
-  float lv[SK_DEG];
-  unsigned int lgi[SK_DEG];
-  float cmax = -1.f;
-  int cpos = 0;
-#pragma unroll
-  for (int t = 0; t < SK_DEG; t++) {
-    lv[t] = gvb[t]; lgi[t] = gib[t];
-    if (lv[t] > cmax) { cmax = lv[t]; cpos = t; }
-  }
-#pragma unroll
-  for (int t = 0; t < SK_DEG; t++) {
-    float dv = pvb[t];
-    unsigned int c = pib[t];
-    if (c < (unsigned int)n && c != (unsigned int)row && dv < cmax) {
-      lv[cpos] = dv; lgi[cpos] = c;
-      float bm = -1.f; int bp = 0;
-#pragma unroll
-      for (int u = 0; u < SK_DEG; u++)
-        if (lv[u] > bm) { bm = lv[u]; bp = u; }
-      cmax = bm; cpos = bp;
-    }
-  }
-#pragma unroll
-  for (int t = 0; t < SK_DEG; t++) { gib[t] = lgi[t]; gvb[t] = lv[t]; }
 }
 
 /* CAGRA requires a full n x DEG graph; rows with fewer than DEG distinct
  * neighbours (tiny n, or duplicated vectors) get deterministic filler. */
+template <int DEG>
 __global__ void sk_finalize(const unsigned int* __restrict__ rid, long n,
                             unsigned int* __restrict__ graph)
 {
   const long row = (long)blockIdx.x * blockDim.x + threadIdx.x;
   if (row >= n) return;
-  const unsigned int* src = rid + (size_t)row * SK_DEG;
-  unsigned int* dst = graph + (size_t)row * SK_DEG;
+  const unsigned int* src = rid + (size_t)row * DEG;
+  unsigned int* dst = graph + (size_t)row * DEG;
 #pragma unroll
-  for (int t = 0; t < SK_DEG; t++) {
+  for (int t = 0; t < DEG; t++) {
     unsigned int c = src[t];
     dst[t] = (c < (unsigned int)n && c != (unsigned int)row)
                  ? c : (unsigned int)((row + 1 + t) % n);
@@ -283,14 +243,14 @@ static void sk_scratch_free(sk_scratch* s)
 }
 
 /* Wrap an existing device graph + dataset into a CAGRA index (near zero copy). */
-static int sk_from_args(sk_cuvs_index* h, void* graph_dev, void* ds_dev, long n, long dim)
+static int sk_from_args(sk_cuvs_index* h, void* graph_dev, void* ds_dev, long n, long dim, long deg)
 {
   cuvsResources_t res = h->res;
   cuvsCagraIndex_t idx = h->idx;
   int64_t* gsh = h->gsh; int64_t* gst = h->gst;
   int64_t* dsh = h->dsh; int64_t* dst = h->dst;
   DLManagedTensor gt, dt;
-  gsh[0] = n; gsh[1] = SK_DEG; gst[0] = SK_DEG; gst[1] = 1;
+  gsh[0] = n; gsh[1] = deg; gst[0] = deg; gst[1] = 1;
   dsh[0] = n; dsh[1] = dim;    dst[0] = dim;    dst[1] = 1;
   memset(&gt, 0, sizeof(gt));
   gt.dl_tensor.data = graph_dev;
@@ -329,7 +289,7 @@ static int sk_from_args(sk_cuvs_index* h, void* graph_dev, void* ds_dev, long n,
  * directly and the per-band partials / merge kernel / value slab are gone.
  * Peak device memory is therefore ds + graph = (dim + DEG) * n * 4 bytes,
  * which is what the 1.25x VRAM gate measures. */
-static int sk_build_exact(sk_cuvs_index* h, const float* base, long n, long dim)
+static int sk_build_exact(sk_cuvs_index* h, const float* base, long n, long dim, long deg)
 {
   sk_scratch s;
   dim3 grid, mgrid;
@@ -337,7 +297,7 @@ static int sk_build_exact(sk_cuvs_index* h, const float* base, long n, long dim)
   memset(&s, 0, sizeof(s));
 
   SK_CUCK(cudaMalloc((void**)&s.ds, sizeof(float) * (size_t)n * (size_t)dim));
-  SK_CUCK(cudaMalloc((void**)&s.graph, sizeof(unsigned int) * (size_t)n * SK_DEG));
+  SK_CUCK(cudaMalloc((void**)&s.graph, sizeof(unsigned int) * (size_t)n * (size_t)deg));
   SK_CUCK(cudaMemcpy(s.ds, base, sizeof(float) * (size_t)n * (size_t)dim, cudaMemcpyDefault));
 
   if (cuvsCagraIndexCreate(&h->idx) != CUVS_SUCCESS) {
@@ -347,28 +307,35 @@ static int sk_build_exact(sk_cuvs_index* h, const float* base, long n, long dim)
 
   grid = dim3((unsigned)((n + SK_THREADS - 1) / SK_THREADS));
   mgrid = dim3((unsigned)((n + 255) / 256));
-  sk_dist_topk<<<grid, SK_THREADS>>>(s.ds, n, dim, 0, n, s.graph, NULL);
+  if (deg == SK_DEG_NARROW)
+    sk_dist_topk<SK_DEG_NARROW><<<grid, SK_THREADS>>>(s.ds, n, dim, 0, n, s.graph, NULL);
+  else
+    sk_dist_topk<SK_DEG_WIDE><<<grid, SK_THREADS>>>(s.ds, n, dim, 0, n, s.graph, NULL);
   SK_CUCK(cudaGetLastError());
-  sk_finalize<<<mgrid, 256>>>(s.graph, n, s.graph);
+  if (deg == SK_DEG_NARROW)
+    sk_finalize<SK_DEG_NARROW><<<mgrid, 256>>>(s.graph, n, s.graph);
+  else
+    sk_finalize<SK_DEG_WIDE><<<mgrid, 256>>>(s.graph, n, s.graph);
   SK_CUCK(cudaGetLastError());
 #if SK_DIV > 0
   /* snapshot the exact lists, then rewrite the tail slots from it */
-  if (cudaMalloc((void**)&s.vals, sizeof(unsigned int) * (size_t)n * SK_DEG) != cudaSuccess) {
+  if (cudaMalloc((void**)&s.vals, sizeof(unsigned int) * (size_t)n * (size_t)deg) != cudaSuccess) {
     fprintf(stderr, "[seekdb_cuvs] diversify buffer alloc failed: %s\n", cudaGetErrorString(cudaGetLastError()));
     goto fail;
   }
-  SK_CUCK(cudaMemcpy(s.vals, s.graph, sizeof(unsigned int) * (size_t)n * SK_DEG, cudaMemcpyDeviceToDevice));
+  SK_CUCK(cudaMemcpy(s.vals, s.graph, sizeof(unsigned int) * (size_t)n * (size_t)deg, cudaMemcpyDeviceToDevice));
   sk_diversify<<<mgrid, 256>>>((unsigned int*)s.vals, s.graph, n);
   SK_CUCK(cudaGetLastError());
   cudaFree(s.vals); s.vals = 0;
 #endif
   SK_CUCK(cudaDeviceSynchronize());
 
-  if (sk_from_args(h, s.graph, s.ds, n, dim) != 0) goto fail;
+  if (sk_from_args(h, s.graph, s.ds, n, dim, deg) != 0) goto fail;
 
   h->ds_dev = (unsigned int*)s.ds;
   h->graph_dev = s.graph;
   h->path = SK_PATH_EXACT;
+  h->deg = deg;
   s.ds = 0; s.graph = 0;   /* ownership moved into the handle */
   sk_scratch_free(&s);
   return 0;
@@ -421,7 +388,9 @@ void* seekdb_cuvs_build(const float* base, long n, long dim)
    * exact path is capped at 128 dims. */
   if (want_exact && dim <= SK_EXACT_MAX_DIM && n >= SK_MIN_N && dim >= 8 &&
       (double)n * (double)dim <= SK_MAX_ELEMS) {
-    if (sk_build_exact(h, base, n, dim) == 0) return h;
+    if (sk_build_exact(h, base, n, dim,
+                         dim <= SK_NARROW_MAX_DIM ? SK_DEG_NARROW : SK_DEG_WIDE) == 0)
+      return h;
     fprintf(stderr, "[seekdb_cuvs] exact GPU graph failed; falling back to NN-descent\n");
   }
 
@@ -561,7 +530,7 @@ int seekdb_cuvs_serialize(void* handle, const char* filename)
   sk_cuvs_index* h = (sk_cuvs_index*)handle;
   FILE* f;
   char hdr[32];
-  int32_t deg32 = SK_DEG, dim32, ver = 1, pad = 0;
+  int32_t deg32 = (int32_t)h->deg, dim32, ver = 1, pad = 0;
   int64_t n64;
   if (!h || !filename) return 1;
 
@@ -585,7 +554,7 @@ int seekdb_cuvs_serialize(void* handle, const char* filename)
   memcpy(hdr + 20, &pad, 4);
   memcpy(hdr + 24, &n64, 8);
   if (fwrite(hdr, 1, sizeof(hdr), f) != sizeof(hdr) ||
-      sk_write_dev(f, h->graph_dev, (unsigned long long)h->n * SK_DEG * 4) != 0 ||
+      sk_write_dev(f, h->graph_dev, (unsigned long long)h->n * (unsigned long long)h->deg * 4) != 0 ||
       sk_write_dev(f, h->ds_dev, (unsigned long long)h->n * (unsigned long long)h->dim * 4) != 0) {
     fclose(f);
     fprintf(stderr, "[seekdb_cuvs] serialize: write failed\n");
@@ -654,7 +623,7 @@ void* seekdb_cuvs_deserialize(const char* filename, long n, long dim)
   memcpy(&dim32, hdr + 16, 4);
   memcpy(&n64, hdr + 24, 8);
   deg = deg32; hd = dim32; hn = (long)n64;
-  if (ver != 1 || deg != SK_DEG || hd != dim || hn != n) {
+  if (ver != 1 || (deg != SK_DEG_NARROW && deg != SK_DEG_WIDE) || hd != dim || hn != n) {
     fprintf(stderr, "[seekdb_cuvs] snapshot header mismatch: n=%ld dim=%ld deg=%ld\n", hn, hd, deg);
     fclose(f);
     return NULL;
@@ -662,12 +631,13 @@ void* seekdb_cuvs_deserialize(const char* filename, long n, long dim)
 
   h = (sk_cuvs_index*)calloc(1, sizeof(*h));
   if (!h) { fclose(f); return NULL; }
-  if (cudaMalloc(&g, (size_t)n * SK_DEG * 4) != cudaSuccess ||
+  h->deg = deg;
+  if (cudaMalloc(&g, (size_t)n * (size_t)deg * 4) != cudaSuccess ||
       cudaMalloc(&d, (size_t)n * (size_t)dim * 4) != cudaSuccess) {
     fprintf(stderr, "[seekdb_cuvs] deserialize: cudaMalloc failed\n");
     goto fail;
   }
-  if (sk_read_dev(f, g, (unsigned long long)n * SK_DEG * 4) != 0 ||
+  if (sk_read_dev(f, g, (unsigned long long)n * (unsigned long long)deg * 4) != 0 ||
       sk_read_dev(f, d, (unsigned long long)n * (unsigned long long)dim * 4) != 0) {
     fprintf(stderr, "[seekdb_cuvs] deserialize: short read\n");
     goto fail;
@@ -678,9 +648,10 @@ void* seekdb_cuvs_deserialize(const char* filename, long n, long dim)
   if (cuvsResourcesCreate(&h->res) != CUVS_SUCCESS) goto fail;
   if (cuvsCagraIndexParamsCreate(&h->ip) != CUVS_SUCCESS) goto fail_res;
   if (cuvsCagraIndexCreate(&h->idx) != CUVS_SUCCESS) goto fail_ip;
-  if (sk_from_args(h, g, d, n, dim) != 0) goto fail_idx;
+  if (sk_from_args(h, g, d, n, dim, deg) != 0) goto fail_idx;
   h->n = n; h->dim = dim;
   h->path = SK_PATH_EXACT;
+  h->deg = deg;
   h->graph_dev = (unsigned int*)g;
   h->ds_dev = (unsigned int*)d;
   return h;
