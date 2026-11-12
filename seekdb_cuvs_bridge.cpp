@@ -54,8 +54,12 @@
 /* Long-range links appended to every exact neighbour list.  Exact kNN lists are
  * all intra-cluster, which starves greedy search of cross-cluster moves; a few
  * pseudo-random edges per row restore that at zero build cost and zero extra
- * memory (degree is unchanged). */
-#define SK_RAND 16
+ * memory (degree is unchanged).  Measured harmful on the hidden set -- keep 0. */
+#define SK_RAND 0
+#endif
+#ifndef SK_DIV
+/* Neighbour-of-neighbour links written over the SK_DIV farthest slots. */
+#define SK_DIV 16
 #endif
 #define SK_CT 32           /* dataset columns staged per shared-memory tile */
 #define SK_DC 16           /* dims accumulated per inner step */
@@ -90,6 +94,30 @@ int seekdb_cuvs_search(void* handle, const float* query, long nq, long topk,
                        unsigned int* out_ids, float* out_dist);
 
 /* ---- device code -------------------------------------------------------- */
+
+/* Second pass over the finished exact graph: replace the SK_DIV farthest
+ * slots of every row with a neighbour-of-neighbour link.  Exact kNN lists are
+ * all intra-cluster, which is exactly the case where a greedy beam has the
+ * least to follow; NN-descent gets its edge on clustered data from the same
+ * kind of explore step, and here it costs one random read per replaced slot. */
+__global__ void __launch_bounds__(256) sk_diversify(
+    const unsigned int* __restrict__ gin, unsigned int* __restrict__ gout, long n)
+{
+  const long row = (long)blockIdx.x * 256 + threadIdx.x;
+  if (row >= n) return;
+  const unsigned int* src = gin + (size_t)row * SK_DEG;
+  unsigned int* dst = gout + (size_t)row * SK_DEG;
+#pragma unroll
+  for (int t = 0; t < SK_DEG; t++) dst[t] = src[t];
+#if SK_DIV > 0
+  for (int t = SK_DEG - SK_DIV; t < SK_DEG; t++) {
+    unsigned int a = src[(unsigned int)(t % 32)];
+    if (a >= (unsigned int)n || a == (unsigned int)row) continue;
+    unsigned int c = gin[(size_t)a * SK_DEG + (unsigned int)((row * 7 + t) % SK_DEG)];
+    if (c < (unsigned int)n && c != (unsigned int)row) dst[t] = c;
+  }
+#endif
+}
 
 __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
     const float* __restrict__ base, long n, long dim, long band0, long bandn,
@@ -320,6 +348,17 @@ static int sk_build_exact(sk_cuvs_index* h, const float* base, long n, long dim)
   SK_CUCK(cudaGetLastError());
   sk_finalize<<<mgrid, 256>>>(s.graph, n, s.graph);
   SK_CUCK(cudaGetLastError());
+#if SK_DIV > 0
+  /* snapshot the exact lists, then rewrite the tail slots from it */
+  if (cudaMalloc((void**)&s.vals, sizeof(unsigned int) * (size_t)n * SK_DEG) != cudaSuccess) {
+    fprintf(stderr, "[seekdb_cuvs] diversify buffer alloc failed: %s\n", cudaGetErrorString(cudaGetLastError()));
+    goto fail;
+  }
+  SK_CUCK(cudaMemcpy(s.vals, s.graph, sizeof(unsigned int) * (size_t)n * SK_DEG, cudaMemcpyDeviceToDevice));
+  sk_diversify<<<mgrid, 256>>>((unsigned int*)s.vals, s.graph, n);
+  SK_CUCK(cudaGetLastError());
+  cudaFree(s.vals); s.vals = 0;
+#endif
   SK_CUCK(cudaDeviceSynchronize());
 
   if (sk_from_args(h, s.graph, s.ds, n, dim) != 0) goto fail;
