@@ -190,6 +190,10 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
     for (int c = 0; c < SK_CT; c++) {
       long col = tile + c;
       if (col >= n || row >= n || col == row) continue;
+      /* A dead column stopped accumulating once it passed the kth distance, so
+       * its acc is only a partial sum -- it must never be offered as a
+       * candidate. */
+      if (dead[c]) continue;
       float dv = acc[c];
       if (dv < cmax) {
         lv[cpos] = dv; li[cpos] = (unsigned int)col;
