@@ -1,23 +1,7 @@
-$ cd /workspace && curl -sS -H "Authorization: bearer $(cat /workspace/.ght)" "https://api.github.com/repos/xyandys/amd-cagra-bench/contents/run_pre.sh?ref=main" -o /workspace/run_pre.sh && sed -i "s/\r$//" /workspace/run_pre.sh && bash /workspace/run_pre.sh
+$ cd /workspace && curl -sS -H "Authorization: bearer $(cat /workspace/.ght)" "https://api.github.com/repos/xyandys/amd-cagra-bench/contents/run_pre.sh?ref=main" -o /tmp/rp.json && python3 -c "import json,base64;d=json.load(open(
 [rc=2]
 --- stdout ---
 
 --- stderr ---
-/workspace/run_pre.sh: line 2: name:: command not found
-/workspace/run_pre.sh: line 3: path:: command not found
-/workspace/run_pre.sh: line 4: sha:: command not found
-/workspace/run_pre.sh: line 5: size:: command not found
-/workspace/run_pre.sh: line 6: url:: command not found
-/workspace/run_pre.sh: line 7: html_url:: command not found
-/workspace/run_pre.sh: line 8: git_url:: command not found
-/workspace/run_pre.sh: line 9: download_url:: command not found
-/workspace/run_pre.sh: line 10: type:: command not found
-/workspace/run_pre.sh: line 11: content:: command not found
-/workspace/run_pre.sh: line 12: encoding:: command not found
-/workspace/run_pre.sh: line 13: _links:: command not found
-/workspace/run_pre.sh: line 14: self:: command not found
-/workspace/run_pre.sh: line 15: git:: command not found
-/workspace/run_pre.sh: line 16: html:: command not found
-/workspace/run_pre.sh: line 18: syntax error near unexpected token `}'
-/workspace/run_pre.sh: line 18: `}'
+/bin/sh: 1: Syntax error: Unterminated quoted string
 
