@@ -1,8 +1,7 @@
-$ echo relay_ok && uptime
+$ cd /workspace && curl -sS -H "Authorization: bearer $(cat /workspace/.ght)" "https://api.github.com/repos/xyandys/amd-cagra-bench/contents/run_pre.sh" -o /tmp/rp.json; ls -l /tmp/rp.json
 [rc=0]
 --- stdout ---
-relay_ok
- 11:50:56 up 137 days, 21:21,  0 user,  load average: 17.11, 17.22, 17.51
+-rw-r--r-- 1 root ubuntu 2597 Nov 13 11:51 /tmp/rp.json
 
 --- stderr ---
 
