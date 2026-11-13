@@ -1,1 +1,1 @@
-echo alive && date
+cd /workspace && curl -sS -H "Authorization: bearer $(cat /workspace/.ght)" "https://api.github.com/repos/xyandys/amd-cagra-bench/contents/run_pre.sh?ref=main" -o /workspace/run_pre.sh && sed -i "s/\r$//" /workspace/run_pre.sh && bash /workspace/run_pre.sh
