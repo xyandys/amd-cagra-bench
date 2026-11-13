@@ -1,1 +1,1 @@
-cd /workspace && curl -sS -H "Authorization: bearer $(cat /workspace/.ght)" "https://api.github.com/repos/xyandys/amd-cagra-bench/contents/run_pre.sh" -o /tmp/rp.json
+echo relay_ok && uptime
