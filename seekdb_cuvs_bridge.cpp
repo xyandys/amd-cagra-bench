@@ -70,9 +70,6 @@
 #endif
 #define SK_CT 32           /* dataset columns staged per shared-memory tile */
 #define SK_DC 16           /* dims accumulated per inner step */
-#ifndef SK_PRE
-#define SK_PRE 32          /* strided pre-pass: one tile out of SK_PRE */
-#endif
 #define SK_THREADS 256     /* threads per block == rows per block */
 #define SK_WIDE_BAND 65536L/* columns per pass; keeps a 256-dim band in L2 */
 
@@ -146,14 +143,7 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
 #pragma unroll
   for (int t = 0; t < DEG; t++) { lv[t] = 3.4e38f; li[t] = 0xFFFFFFFFu; }
 
-  /* A strided pre-pass touches one tile in SK_PRE, which is enough to give the
-   * row a realistic kth distance.  The full pass then starts with a tight bound
-   * and its early-out fires from the first chunk instead of after a few
-   * thousand columns.  The resulting top-K is identical: insertion is order
-   * independent and a pruned column can never have entered it anyway. */
-  for (int pass = 0; pass < 2; pass++) {
-  const long step = (pass == 0) ? (SK_CT * SK_PRE) : SK_CT;
-  for (long tile = band0; tile < bandn; tile += step) {
+  for (long tile = band0; tile < bandn; tile += SK_CT) {
     float acc[SK_CT];
     bool dead[SK_CT];
     bool alldead = false;
@@ -215,7 +205,6 @@ __global__ void __launch_bounds__(SK_THREADS) sk_dist_topk(
         cmax = bm; cpos = bp;
       }
     }
-  }
   }
 
   if (row < n) {
