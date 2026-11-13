@@ -1,18 +1,8 @@
-$ cd /workspace/w && T=$(cat /workspace/.ght) && curl -sS -H "Authorization: bearer $T" 'https://api.github.com/repos/xyandys/amd-cagra-bench/contents/seekdb_cuvs_bridge.cpp?ref=main' -o nb.json && python3 -c "import json,base64;d=json.load(open('nb.json'));open('seekdb_cuvs_bridge.cpp','wb').write(base64.b64decode(d['content']))" && sed -i 's/\r$//' seekdb_cuvs_bridge.cpp && ./build.sh >/dev/null 2>&1; for w in 8 16; do echo "== width $w 128d =="; SEEKDB_CUVS_WIDTH=$w LD_LIBRARY_PATH=/workspace/w ./bridge_selftest sift_base.fvecs 250000 128 2048 50 sift_query.fvecs 2>&1 | grep -E 'QPS|RECALL@'; done # t44-width
+$ echo alive && date
 [rc=0]
 --- stdout ---
-== width 8 128d ==
-SEARCH10 topk=10 first_ms=28.35 batch_ms=40 QPS=51593.6
-SEARCH100 topk=100 first_ms=1.53 batch_ms=38 QPS=53260.8
-RECALL@10=0.9980 (499/500)
-RECALL@100=0.9958 (4979/5000)
-SEARCH10_AFTER_LOAD topk=10 first_ms=1.81 batch_ms=39 QPS=53045.2
-== width 16 128d ==
-SEARCH10 topk=10 first_ms=31.77 batch_ms=32 QPS=63574.0
-SEARCH100 topk=100 first_ms=1.05 batch_ms=31 QPS=65409.5
-RECALL@10=0.9980 (499/500)
-RECALL@100=0.9962 (4981/5000)
-SEARCH10_AFTER_LOAD topk=10 first_ms=1.29 batch_ms=32 QPS=63995.4
+alive
+Fri Nov 13 11:13:56 UTC 2026
 
 --- stderr ---
 
