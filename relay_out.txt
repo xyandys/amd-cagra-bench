@@ -1,14 +1,9 @@
-$ bash /workspace/run_pre.sh 2>&1 | tail -8
+$ cd /workspace/w && echo relay_up && ls d128 | head -3
 [rc=0]
 --- stdout ---
-SEARCH100 topk=100 first_ms=3.23 batch_ms=39 QPS=25745.7
-RECALL@10=0.9980 (998/1000)
-RECALL@100=0.9968 (9968/10000)
-SEARCH10_AFTER_LOAD topk=10 first_ms=3.40 batch_ms=40 QPS=24880.6
-== 768 ==
-BUILD_MS=20945 VRAM_PEAK_MB=1327648768 VRAM_DELTA_MB=1299644416
-RECALL@10=0.7170 (717/1000)
-RECALL@100=0.6589 (6589/10000)
+relay_up
+libseekdb_cuvs_bridge.so
+selftest
 
 --- stderr ---
 
