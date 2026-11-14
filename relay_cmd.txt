@@ -1,1 +1,1 @@
-cd /workspace/w && echo ok && ls d128/ 2>/dev/null | head -3
+cd /workspace/w && echo probe_$(date +%s) && ls -l d128/selftest
