@@ -1,1 +1,1 @@
-cd /workspace/w && echo relay_up && ls d128 | head -3
+cd /workspace/w && for k in 512 256 192 128; do echo "== ITOPK=$k =="; SEEKDB_CUVS_ITOPK=$k LD_LIBRARY_PATH=/workspace/w/d128 ./d128/selftest sift_base.fvecs 250000 128 1000 100 sift_query.fvecs 2>&1 | grep -E "SEARCH10 topk|SEARCH100 topk|RECALL@"; done
