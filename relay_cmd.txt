@@ -1,1 +1,1 @@
-bash /workspace/run_pre.sh 2>&1 | tail -8
+cd /workspace/w && echo ok && ls d128/ 2>/dev/null | head -3
